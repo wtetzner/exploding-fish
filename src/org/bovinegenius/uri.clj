@@ -278,3 +278,8 @@ key is given, all values are returned."
   "Returns a map of the query string parameters for the given URI."
   [^UniversalResourceIdentifier uri]
   (->> uri query-pairs (into {})))
+
+(defn query-keys
+  "Returns a list of the query string keys of the given URI."
+  [^UniversalResourceIdentifier uri]
+  (->> uri query-pairs (map first) vec))
