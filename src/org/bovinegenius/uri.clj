@@ -1,5 +1,5 @@
 (ns org.bovinegenius.uri
-  (:use (org.bovinegenius.uri java-uri))
+  (:use (org.bovinegenius.uri query-string))
   (:import (java.net URI URL)))
 
 (defprotocol UniversalResourceIdentifier
@@ -240,3 +240,41 @@
                ([self new-fragment]
                   (-> self uri->map (fragment new-fragment) map->uri
                       (with-meta (meta self)))))})
+
+(defn query-list
+  "Returns a list from the query string of the given URI."
+  [^UniversalResourceIdentifier uri]
+  (-> uri query query-string->list))
+
+(defn query-pairs
+  "Returns an alist of the query params matching the given key. If no
+key is given, an alist of all the query params is returned."
+  ([^UniversalResourceIdentifier uri key]
+     (->> uri query-params
+          (filter (fn [[param-key value]]
+                    (= param-key key)))
+          vec))
+  ([^UniversalResourceIdentifier uri]
+     (-> uri query query-string->alist)))
+
+(defn query-params
+  "Returns an alist of the query values whose key matches the given key. If no
+key is given, all values are returned."
+  ([^UniversalResourceIdentifier uri key]
+     (->> uri query-pairs
+          (filter (fn [[param-key value]]
+                    (= param-key key)))
+          (map second)
+          vec))
+  ([^UniversalResourceIdentifier uri]
+     (->> uri query query-string->alist (map second) vec)))
+
+(defn query-param
+  "Returns the last param value that matches the given key."
+  [^UniversalResourceIdentifier uri key]
+  (-> uri (query-params key) last))
+
+(defn query-map
+  "Returns a map of the query string parameters for the given URI."
+  [^UniversalResourceIdentifier uri]
+  (->> uri query-pairs (into {})))
