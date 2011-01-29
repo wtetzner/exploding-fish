@@ -1,5 +1,6 @@
 (ns org.bovinegenius.uri
-  (:require (org.bovinegenius.uri java-uri)))
+  (:use (org.bovinegenius.uri java-uri))
+  (:import (java.net URI)))
 
 (defprotocol UniversalResourceIdentifier
   "Protocol for dealing with URIs."
