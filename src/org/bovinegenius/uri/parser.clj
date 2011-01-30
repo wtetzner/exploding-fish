@@ -1,6 +1,6 @@
 (ns org.bovinegenius.uri.parser)
 
-(defn parse-scheme-specific
+(defn parse-generic
   "Takes a URI string and parses it into scheme, scheme-specific-part,
 and fragment parts."
   [uri]
