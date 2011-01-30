@@ -145,6 +145,15 @@
   clojure.lang.IMeta
   (meta [self] metadata))
 
+(defn uri
+  "Builds a Uri object. Takes a map of URI keys, a URI string, or
+another Uri object."
+  [uri]
+  (condp instance? uri
+    Uri uri
+    clojure.lang.IPersistentMap (Uri. uri (meta uri))
+    java.lang.String (Uri. (parse-uri uri) nil)))
+
 (extend java.net.URI
   UniformResourceIdentifier
   {:scheme (fn ([^URI self] (.getScheme self))
