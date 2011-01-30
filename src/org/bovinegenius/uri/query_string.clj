@@ -42,3 +42,38 @@
   "Convert a query string alist into a query string."
   [alist]
   (-> alist alist->list list->query-string))
+
+(defn alist-replace
+  "Replace a value in an alist. If there is more than one pair with
+the same key, the first value will be set, and the following values
+will be removed. If an index is given, it will replace the nth value
+whose key matches the given key, and other pairs with that key will be
+unmodified."
+  ([alist key value]
+     (let [pair-matcher (fn [[param-key value]]
+                          (not= param-key key))
+           front (take-while pair-matcher
+                             alist)
+           item (->> alist
+                     (drop-while pair-matcher)
+                     first)
+           back (->> alist
+                     (drop-while pair-matcher)
+                     rest
+                     (filter pair-matcher))]
+       (with-meta (vec (concat front [(with-meta [key value] (meta item))] back))
+         (meta alist))))
+  ([alist key value index]
+     (let [pair-matcher (fn [[param-key value]]
+                          (not= param-key key))
+           items (->> alist
+                      (map-indexed (fn [index pair]
+                                     (vary-meta pair assoc :index index)))
+                      (remove pair-matcher)
+                      vec)
+           item (if (>= index (count items)) nil (items index))
+           index (or (-> item meta :index) (count alist))
+           front (take index alist)
+           back (drop (inc index) alist)]
+       (with-meta (vec (concat front (with-meta [[key value]] (meta item)) back))
+         (meta alist)))))
