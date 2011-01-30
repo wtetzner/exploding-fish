@@ -240,34 +240,34 @@ another Uri object."
 
 (extend String
   UniformResourceIdentifier
-  {:scheme (fn ([^String self] (-> self URI. scheme))
+  {:scheme (fn ([^String self] (-> self uri scheme))
              ([^String self ^String new-scheme]
-                (-> self URI. (scheme new-scheme) str str)))
+                (-> self uri (scheme new-scheme) str str)))
    :scheme-specific-part (fn ([^String self]
-                                (-> self URI. scheme-specific-part))
+                                (-> self uri scheme-specific-part))
                            ([^String self ^String ssp]
-                              (-> self URI. (scheme-specific-part ssp) str str)))
-   :authority (fn ([^String self] (-> self URI. authority))
+                              (-> self uri (scheme-specific-part ssp) str str)))
+   :authority (fn ([^String self] (-> self uri authority))
                 ([^String self ^String new-authority]
-                   (-> self URI. (authority new-authority) str str)))
-   :user-info (fn ([^String self] (-> self URI. user-info))
+                   (-> self uri (authority new-authority) str str)))
+   :user-info (fn ([^String self] (-> self uri user-info))
                 ([^String self ^String new-user-info]
-                   (-> self URI. (user-info new-user-info) str str)))
-   :host (fn ([^String self] (-> self URI. host))
+                   (-> self uri (user-info new-user-info) str str)))
+   :host (fn ([^String self] (-> self uri host))
            ([^String self ^String new-host]
-              (-> self URI. (host new-host) str str)))
-   :port (fn ([^String self] (-> self URI. port))
+              (-> self uri (host new-host) str str)))
+   :port (fn ([^String self] (-> self uri port))
            ([^String self ^Integer new-port]
-              (-> self URI. (port new-port) str str)))
-   :path (fn ([^String self] (-> self URI. path))
+              (-> self uri (port new-port) str str)))
+   :path (fn ([^String self] (-> self uri path))
            ([^String self ^String new-path]
-              (-> self URI. (path new-path) str str)))
-   :query (fn ([^String self] (-> self URI. query))
+              (-> self uri (path new-path) str str)))
+   :query (fn ([^String self] (-> self uri query))
             ([^String self ^String new-query]
-               (-> self URI. (query new-query) str str)))
-   :fragment (fn ([^String self] (-> self URI. fragment))
+               (-> self uri (query new-query) str str)))
+   :fragment (fn ([^String self] (-> self uri fragment))
                ([^String self ^String new-fragment]
-                  (-> self URI. (fragment new-fragment) str str)))})
+                  (-> self uri (fragment new-fragment) str str)))})
 
 (extend java.net.URL
   UniformResourceIdentifier
