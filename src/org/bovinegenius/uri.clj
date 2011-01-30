@@ -345,46 +345,6 @@ another Uri object."
   [uri]
   (-> uri map->uri str str))
 
-(extend clojure.lang.IPersistentMap
-  UniformResourceIdentifier
-  {:scheme (fn ([self] (-> self map->uri scheme))
-             ([self new-scheme]
-                (-> self map->uri (scheme new-scheme) uri->map
-                    (with-meta (meta self)))))
-   :scheme-specific-part (fn ([self]
-                                (-> self map->uri scheme-specific-part))
-                           ([self ssp]
-                              (-> self map->uri (scheme-specific-part ssp) uri->map
-                                  (with-meta (meta self)))))
-   :authority (fn ([self] (-> self map->uri authority))
-                ([self new-authority]
-                   (-> self map->uri (authority new-authority) uri->map
-                       (with-meta (meta self)))))
-   :user-info (fn ([self] (-> self map->uri user-info))
-                ([self new-user-info]
-                   (-> self map->uri (user-info new-user-info) uri->map
-                       (with-meta (meta self)))))
-   :host (fn ([self] (-> self map->uri host))
-           ([self new-host]
-              (-> self map->uri (host new-host) uri->map
-                  (with-meta (meta self)))))
-   :port (fn ([self] (-> self map->uri port))
-           ([self new-port]
-              (-> self map->uri (port new-port) uri->map
-                  (with-meta (meta self)))))
-   :path (fn ([self] (-> self map->uri path))
-           ([self new-path]
-              (-> self map->uri (path new-path) uri->map
-                  (with-meta (meta self)))))
-   :query (fn ([self] (-> self map->uri query))
-            ([self new-query]
-               (-> self map->uri (query new-query) uri->map
-                   (with-meta (meta self)))))
-   :fragment (fn ([self] (-> self map->uri fragment))
-               ([self new-fragment]
-                  (-> self uri->map (fragment new-fragment) map->uri
-                      (with-meta (meta self)))))})
-
 (defn query-list
   "Returns a list from the query string of the given URI."
   [^UniformResourceIdentifier uri]
