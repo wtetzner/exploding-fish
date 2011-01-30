@@ -1,6 +1,6 @@
 (ns org.bovinegenius.uri.protocol)
 
-(defprotocol UniversalResourceIdentifier
+(defprotocol UniformResourceIdentifier
   "Protocol for dealing with URIs."
   (scheme
     [self] [self new-scheme]

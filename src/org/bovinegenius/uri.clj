@@ -14,7 +14,7 @@
     (deref *default-encoding*)))
 
 (extend java.net.URI
-  UniversalResourceIdentifier
+  UniformResourceIdentifier
   {:scheme (fn ([^URI self] (.getScheme self))
              ([^URI self ^String new-scheme]
                 (cond (-> (.getRawSchemeSpecificPart self) empty? not)
@@ -97,7 +97,7 @@
                              (if fragment (str "#" fragment) nil)))))})
 
 (extend String
-  UniversalResourceIdentifier
+  UniformResourceIdentifier
   {:scheme (fn ([^String self] (-> self URI. scheme))
              ([^String self ^String new-scheme]
                 (-> self URI. (scheme new-scheme) str str)))
@@ -128,7 +128,7 @@
                   (-> self URI. (fragment new-fragment) str str)))})
 
 (extend java.net.URL
-  UniversalResourceIdentifier
+  UniformResourceIdentifier
   {:scheme (fn ([^URL self] (-> self .toURI scheme))
              ([^URL self ^String new-scheme]
                 (-> self .toURI ^URI (scheme new-scheme) .toURL)))
@@ -205,7 +205,7 @@
   (-> uri map->uri str str))
 
 (extend clojure.lang.IPersistentMap
-  UniversalResourceIdentifier
+  UniformResourceIdentifier
   {:scheme (fn ([self] (-> self map->uri scheme))
              ([self new-scheme]
                 (-> self map->uri (scheme new-scheme) uri->map
@@ -246,30 +246,30 @@
 
 (defn query-list
   "Returns a list from the query string of the given URI."
-  [^UniversalResourceIdentifier uri]
+  [^UniformResourceIdentifier uri]
   (-> uri query query-string->list))
 
 (defn query-pairs
   "Returns an alist of the query params matching the given key. If no
 key is given, an alist of all the query params is returned."
-  ([^UniversalResourceIdentifier uri key]
+  ([^UniformResourceIdentifier uri key]
      (->> uri query-params
           (filter (fn [[param-key value]]
                     (= param-key key)))
           vec))
-  ([^UniversalResourceIdentifier uri]
+  ([^UniformResourceIdentifier uri]
      (-> uri query query-string->alist)))
 
 (defn query-params
   "Returns an alist of the query values whose key matches the given key. If no
 key is given, all values are returned."
-  ([^UniversalResourceIdentifier uri key]
+  ([^UniformResourceIdentifier uri key]
      (->> uri query-pairs
           (filter (fn [[param-key value]]
                     (= param-key key)))
           (map second)
           vec))
-  ([^UniversalResourceIdentifier uri]
+  ([^UniformResourceIdentifier uri]
      (->> uri query query-string->alist (map second) vec)))
 
 (defn query-param
@@ -277,23 +277,23 @@ key is given, all values are returned."
 given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
-  ([^UniversalResourceIdentifier uri key]
+  ([^UniformResourceIdentifier uri key]
      (-> uri (query-params key) last (URLDecoder/decode (default-encoding))))
-  ([^UniversalResourceIdentifier uri key value]
+  ([^UniformResourceIdentifier uri key value]
      (query uri (-> uri query-pairs
                     (alist-replace key (URLEncoder/encode value (default-encoding)))
                     alist->query-string)))
-  ([^UniversalResourceIdentifier uri key value index]
+  ([^UniformResourceIdentifier uri key value index]
      (query uri (-> uri query-pairs
                     (alist-replace key (URLEncoder/encode value (default-encoding)) index)
                     alist->query-string))))
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."
-  [^UniversalResourceIdentifier uri]
+  [^UniformResourceIdentifier uri]
   (->> uri query-pairs (into {})))
 
 (defn query-keys
   "Returns a list of the query string keys of the given URI."
-  [^UniversalResourceIdentifier uri]
+  [^UniformResourceIdentifier uri]
   (->> uri query-pairs (map first) vec))
