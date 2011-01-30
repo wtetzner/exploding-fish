@@ -253,7 +253,7 @@
   "Returns an alist of the query params matching the given key. If no
 key is given, an alist of all the query params is returned."
   ([^UniformResourceIdentifier uri key]
-     (->> uri query-params
+     (->> uri query-pairs
           (filter (fn [[param-key value]]
                     (= param-key key)))
           vec))
