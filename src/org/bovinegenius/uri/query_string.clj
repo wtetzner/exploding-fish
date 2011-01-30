@@ -4,7 +4,9 @@
 (defn query-string->list
   "Convert a query string into a list by separating on &'s."
   [^String query-string]
-  (str/split query-string #"&"))
+  (if query-string
+    (str/split query-string #"&")
+    []))
 
 (defn list->alist
   "Convert a query string list into an alist."
