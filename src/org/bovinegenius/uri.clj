@@ -48,61 +48,83 @@
   {:scheme (fn ([^URI self] (.getScheme self))
              ([^URI self ^String new-scheme]
                 (cond (-> (.getRawSchemeSpecificPart self) empty? not)
-                      (URI. new-scheme (.getRawSchemeSpecificPart self)
-                            (.getRawFragment self))
+                      (URI. (str new-scheme ":" (.getRawSchemeSpecificPart self)
+                                 (if (.getRawFragment self)
+                                   (str "#" (.getRawFragment self)) nil)))
                       
                       (.getRawUserInfo self)
-                      (URI. new-scheme (.getRawUserInfo self)
-                            (.getHost self) (.getPort self)
-                            (.getRawPath self) (.getRawQuery self)
-                            (.getRawFragment self))
+                      (URI. (str new-scheme "://"
+                                 (if (.getRawUserInfo self)
+                                   (str (.getRawUserInfo self) "@") "") (.getHost self)
+                                   (if (< (.getPort self) 0) "" (str ":" (.getPort self)))
+                                   (.getRawPath self)
+                                   (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                                   (if (.getRawFragment self) (str "#" (.getRawFragment self)))))
 
                       (.getHost self)
-                      (URI. new-scheme (.getHost self) (.getRawPath self)
-                            (.getRawFragment self))
+                      (URI. (str new-scheme "://" (.getHost self) (.getRawPath self)
+                                 (if (.getRawFragment self)
+                                   (str "#" (.getRawFragment self)) nil)))
 
-                      :else (URI. new-scheme (.getRawAuthority self)
-                                  (.getRawPath self) (.getRawQuery self)
-                                  (.getRawFragment self)))))
+                      :else (URI. (str new-scheme "://"
+                                       (.getRawAuthority self) (.getRawPath self)
+                                       (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                                       (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil))))))
    :scheme-specific-part (fn ([^URI self] (.getRawSchemeSpecificPart self))
                            ([^URI self ^String ssp]
-                              (URI. (.getScheme self) ssp (.getRawFragment self))))
+                              (URI. (str (.getScheme self) ssp
+                                         (if (.getRawFragment self)
+                                           (str "#" (.getRawFragment self)) nil)))))
    :authority (fn ([^URI self] (.getRawAuthority self))
                 ([^URI self ^String authority]
-                   (URI. (.getScheme self) authority
-                         (.getRawPath self) (.getRawQuery self)
-                         (.getRawFragment self))))
+                   (URI. (str (.getScheme self) "://"
+                              authority (.getRawPath self)
+                              (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                              (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil)))))
    :user-info (fn ([^URI self] (.getRawUserInfo self))
                 ([^URI self ^String user-info]
-                   (URI. (.getScheme self) user-info (.getHost self)
-                         (.getPort self) (.getRawPath self) (.getRawQuery self)
-                         (.getRawFragment self))))
+                   (URI. (str (.getScheme self) "://"
+                              (if user-info (str user-info "@") "") (.getHost self)
+                              (if (< (.getPort self) 0) "" (str ":" (.getPort self)))
+                              (.getRawPath self)
+                              (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                              (if (.getRawFragment self) (str "#" (.getRawFragment self)))))))
    :host (fn ([^URI self] (.getHost self))
            ([^URI self ^String host]
-              (URI. (.getScheme self) (.getRawUserInfo self) host
-                    (.getPort self) (.getRawPath self) (.getRawQuery self)
-                    (.getRawFragment self))))
+              (URI. (str (.getScheme self) "://"
+                         (if (.getRawUserInfo self)
+                           (str (.getRawUserInfo self) "@") "") host
+                         (if (< (.getPort self) 0) "" (str ":" (.getPort self)))
+                         (.getRawPath self)
+                         (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                         (if (.getRawFragment self) (str "#" (.getRawFragment self)))))))
    :port (fn ([^URI self] (let [port (.getPort self)]
                             (if (= port -1) nil port)))
            ([^URI self ^Integer port]
-              (URI. (.getScheme self) (.getRawUserInfo self) (.getHost self)
-                    (or port -1) (.getRawPath self) (.getRawQuery self)
-                    (.getRawFragment self))))
+              (URI. (str (.getScheme self) "://"
+                         (if (.getRawUserInfo self)
+                           (str (.getRawUserInfo self) "@") "") (.getHost self)
+                         (if (< port 0) "" (if port (str ":" port) "")) (.getRawPath self)
+                         (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                         (if (.getRawFragment self) (str "#" (.getRawFragment self)))))))
    :path (fn ([^URI self] (.getRawPath self))
            ([^URI self ^String path]
-              (URI. (.getScheme self) (.getRawUserInfo self) (.getHost self)
-                    (.getPort self) path (.getRawQuery self)
-                    (.getRawFragment self))))
+              (URI. (str (.getScheme self) "://"
+                          (.getRawAuthority self) path
+                          (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                          (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil)))))
    :query (fn ([^URI self] (.getRawQuery self))
             ([^URI self ^String query]
-               (URI. (.getScheme self) (.getRawUserInfo self) (.getHost self)
-                     (.getPort self) (.getRawPath self) query
-                     (.getRawFragment self))))
+               (URI. (str (.getScheme self) "://"
+                          (.getRawAuthority self) (.getRawPath self)
+                          (if query (str "?" query) nil)
+                          (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil)))))
    :fragment (fn ([^URI self] (.getRawFragment self))
                ([^URI self ^String fragment]
-                  (URI. (.getScheme self) (.getRawUserInfo self) (.getHost self)
-                        (.getPort self) (.getRawPath self) (.getRawQuery self)
-                        fragment)))})
+                  (URI. (str (.getScheme self) "://"
+                             (.getRawAuthority self) (.getRawPath self)
+                             (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
+                             (if fragment (str "#" fragment) nil)))))})
 
 (extend String
   UniversalResourceIdentifier
