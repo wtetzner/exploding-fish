@@ -135,6 +135,8 @@
 
   clojure.lang.Seqable
   (seq [self] (seq data))
+
+  clojure.lang.IPersistentMap
   
   Object
   (toString [self] (build-uri-string data))
