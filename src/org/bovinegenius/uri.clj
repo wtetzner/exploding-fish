@@ -152,7 +152,8 @@ another Uri object."
   (condp instance? uri
     Uri uri
     clojure.lang.IPersistentMap (Uri. uri (meta uri))
-    java.lang.String (Uri. (parse-uri uri) nil)))
+    java.lang.String (Uri. (parse-uri uri) nil)
+    (Uri. (-> uri str str parse-uri) nil)))
 
 (extend java.net.URI
   UniformResourceIdentifier
