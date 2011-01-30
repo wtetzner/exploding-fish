@@ -1,5 +1,5 @@
 (ns org.bovinegenius.uri
-  (:use (org.bovinegenius.uri query-string protocol parser constructor)
+  (:use (org.bovinegenius.uri query-string parser constructor)
         (clojure.contrib def))
   (:import (java.net URI URL URLDecoder URLEncoder)))
 
