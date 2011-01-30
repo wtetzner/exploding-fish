@@ -270,9 +270,16 @@ key is given, all values are returned."
      (->> uri query query-string->alist (map second) vec)))
 
 (defn query-param
-  "Returns the last param value that matches the given key."
-  [^UniversalResourceIdentifier uri key]
-  (-> uri (query-params key) last))
+  "Get the last param value that matches the given key. If 3 args are
+given, set the first param value that matches the given key, and
+remove the remaining params that match the given key. If 4 args are
+given, set the nth param value that matches the given key."
+  ([^UniversalResourceIdentifier uri key]
+     (-> uri (query-params key) last))
+  ([^UniversalResourceIdentifier uri key value]
+     (query uri (-> uri query-pairs (alist-replace key value) alist->query-string)))
+  ([^UniversalResourceIdentifier uri key value index]
+     (query uri (-> uri query-pairs (alist-replace key value index) alist->query-string))))
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."
