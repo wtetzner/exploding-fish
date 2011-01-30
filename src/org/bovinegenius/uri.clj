@@ -43,9 +43,107 @@
     [self] [self new-fragment]
     "Get or set the fragment of the URI."))
 
-(deftype Uri [data]
+(defvar- *uri-keys* #{:scheme :scheme-specific-part :authority
+                      :user-info :host :port :path :query
+                      :fragment})
+
+(deftype Uri [data metadata]
   UniformResourceIdentifier
-  (scheme [self] (:scheme data)))
+  (scheme [self] (:scheme data))
+  (scheme [self new-scheme] (-> (assoc data :scheme new-scheme)
+                                (clean-map *uri-keys*)
+                                (Uri. metadata)))
+  (scheme-specific-part [self] (:scheme-specific-part data))
+  (scheme-specific-part [self ssp] (let [new-data (assoc data :scheme-specific-part ssp)
+                                         ssp-data (parse-scheme-specific ssp)
+                                         auth-data (parse-authority (:authority ssp-data))]
+                                     (-> (merge new-data ssp-data auth-data)
+                                         (clean-map *uri-keys*)
+                                         (Uri. metadata))))
+  (authority [self] (:authority data))
+  (authority [self authority] (let [new-data (assoc data :authority authority)
+                                    auth-data (parse-authority authority)]
+                                (-> (merge new-data auth-data)
+                                    (clean-map *uri-keys*)
+                                    (Uri. metadata))))
+  (user-info [self] (:user-info data))
+  (user-info [self user-info] (let [new-data (assoc data :user-info user-info)
+                                    authority (build-authority new-data)
+                                    new-data (assoc new-data :authority authority)
+                                    ssp (build-scheme-specific new-data)
+                                    new-data (assoc new-data :scheme-specific-part ssp)]
+                                (-> new-data
+                                    (clean-map *uri-keys*)
+                                    (Uri. metadata))))
+  (host [self] (:host self))
+  (host [self host] (let [new-data (assoc data :host host)
+                          authority (build-authority new-data)
+                          new-data (assoc new-data :authority authority)
+                          ssp (build-scheme-specific new-data)
+                          new-data (assoc new-data :scheme-specific-part ssp)]
+                      (-> new-data
+                          (clean-map *uri-keys*)
+                          (Uri. metadata))))
+  (port [self] (:port self))
+  (port [self port] (let [new-data (if (and port (>= port 0))
+                                     (assoc data :port port)
+                                     (dissoc data :port))
+                          authority (build-authority new-data)
+                          new-data (assoc new-data :authority authority)
+                          ssp (build-scheme-specific new-data)
+                          new-data (assoc new-data :scheme-specific-part ssp)]
+                      (-> new-data
+                          (clean-map *uri-keys*)
+                          (Uri. metadata))))
+  (path [self] (:path self))
+  (path [self path] (let [new-data (assoc data :path path)
+                          ssp (build-scheme-specific new-data)
+                          new-data (assoc new-data :scheme-specific-part ssp)]
+                      (-> new-data
+                          (clean-map *uri-keys*)
+                          (Uri. metadata))))
+  (query [self] (:query self))
+  (query [self query] (let [new-data (assoc data :query query)
+                            ssp (build-scheme-specific new-data)
+                            new-data (assoc new-data :scheme-specific-part ssp)]
+                        (-> new-data
+                            (clean-map *uri-keys*)
+                            (Uri. metadata))))
+  (fragment [self] (:fragment self))
+  (fragment [self fragment] (-> (assoc data :fragment fragment)
+                                (clean-map *uri-keys*)
+                                (Uri. metadata)))
+  
+  clojure.lang.Associative
+  (containsKey [self key] (contains? data key))
+  (assoc [self key value] (condp = key
+                              :scheme (scheme self value)
+                              :scheme-specific-part (scheme-specific-part self value)
+                              :authority (authority self value)
+                              :user-info (user-info self value)
+                              :host (host self value)
+                              :port (port self value)
+                              :path (path self value)
+                              :query (query self value)
+                              :fragment (fragment self value)
+                              (Uri. (assoc data key value) metadata)))
+  (entryAt [self key] (data key))
+
+  clojure.lang.ILookup
+  (valAt [self key] (get data key))
+  (valAt [self key value] (get data key value))
+
+  clojure.lang.Seqable
+  (seq [self] (seq data))
+  
+  Object
+  (toString [self] (build-uri-string data))
+
+  clojure.lang.IObj
+  (withMeta [self mdata] (Uri. data mdata))
+  
+  clojure.lang.IMeta
+  (meta [self] metadata))
 
 (extend java.net.URI
   UniformResourceIdentifier
