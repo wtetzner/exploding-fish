@@ -1,6 +1,17 @@
 (ns org.bovinegenius.uri
-  (:use (org.bovinegenius.uri query-string))
-  (:import (java.net URI URL)))
+  (:use (org.bovinegenius.uri query-string)
+        (clojure.contrib def))
+  (:import (java.net URI URL URLDecoder URLEncoder)))
+
+(defvar *default-encoding* (ref "UTF-8")
+  "Default encoding for query params.")
+
+(defn default-encoding
+  "Get the default encoding for query params."
+  []
+  (if (string? *default-encoding*)
+    *default-encoding*
+    (deref *default-encoding*)))
 
 (defprotocol UniversalResourceIdentifier
   "Protocol for dealing with URIs."
@@ -275,11 +286,15 @@ given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
   ([^UniversalResourceIdentifier uri key]
-     (-> uri (query-params key) last))
+     (-> uri (query-params key) last (URLDecoder/decode (default-encoding))))
   ([^UniversalResourceIdentifier uri key value]
-     (query uri (-> uri query-pairs (alist-replace key value) alist->query-string)))
+     (query uri (-> uri query-pairs
+                    (alist-replace key (URLEncoder/encode value (default-encoding)))
+                    alist->query-string)))
   ([^UniversalResourceIdentifier uri key value index]
-     (query uri (-> uri query-pairs (alist-replace key value index) alist->query-string))))
+     (query uri (-> uri query-pairs
+                    (alist-replace key (URLEncoder/encode value (default-encoding)) index)
+                    alist->query-string))))
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."
