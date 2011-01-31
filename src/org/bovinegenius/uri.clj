@@ -161,84 +161,32 @@ another Uri object."
   UniformResourceIdentifier
   {:scheme (fn ([^URI self] (.getScheme self))
              ([^URI self ^String new-scheme]
-                (cond (-> (.getRawSchemeSpecificPart self) empty? not)
-                      (URI. (str new-scheme ":" (.getRawSchemeSpecificPart self)
-                                 (if (.getRawFragment self)
-                                   (str "#" (.getRawFragment self)) nil)))
-                      
-                      (.getRawUserInfo self)
-                      (URI. (str new-scheme "://"
-                                 (if (.getRawUserInfo self)
-                                   (str (.getRawUserInfo self) "@") "") (.getHost self)
-                                   (if (< (.getPort self) 0) "" (str ":" (.getPort self)))
-                                   (.getRawPath self)
-                                   (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                                   (if (.getRawFragment self) (str "#" (.getRawFragment self)))))
-
-                      (.getHost self)
-                      (URI. (str new-scheme "://" (.getHost self) (.getRawPath self)
-                                 (if (.getRawFragment self)
-                                   (str "#" (.getRawFragment self)) nil)))
-
-                      :else (URI. (str new-scheme "://"
-                                       (.getRawAuthority self) (.getRawPath self)
-                                       (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                                       (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil))))))
+                (-> self uri (scheme new-scheme) str URI.)))
    :scheme-specific-part (fn ([^URI self] (.getRawSchemeSpecificPart self))
                            ([^URI self ^String ssp]
-                              (URI. (str (.getScheme self) ssp
-                                         (if (.getRawFragment self)
-                                           (str "#" (.getRawFragment self)) nil)))))
+                              (-> self uri (scheme-specific-part ssp) str URI.)))
    :authority (fn ([^URI self] (.getRawAuthority self))
-                ([^URI self ^String authority]
-                   (URI. (str (.getScheme self) "://"
-                              authority (.getRawPath self)
-                              (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                              (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil)))))
+                ([^URI self ^String new-authority]
+                   (-> self uri (authority new-authority) str URI.)))
    :user-info (fn ([^URI self] (.getRawUserInfo self))
-                ([^URI self ^String user-info]
-                   (URI. (str (.getScheme self) "://"
-                              (if user-info (str user-info "@") "") (.getHost self)
-                              (if (< (.getPort self) 0) "" (str ":" (.getPort self)))
-                              (.getRawPath self)
-                              (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                              (if (.getRawFragment self) (str "#" (.getRawFragment self)))))))
+                ([^URI self ^String new-user-info]
+                   (-> self uri (user-info new-user-info) str URI.)))
    :host (fn ([^URI self] (.getHost self))
-           ([^URI self ^String host]
-              (URI. (str (.getScheme self) "://"
-                         (if (.getRawUserInfo self)
-                           (str (.getRawUserInfo self) "@") "") host
-                         (if (< (.getPort self) 0) "" (str ":" (.getPort self)))
-                         (.getRawPath self)
-                         (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                         (if (.getRawFragment self) (str "#" (.getRawFragment self)))))))
+           ([^URI self ^String new-host]
+              (-> self uri (host new-host) str URI.)))
    :port (fn ([^URI self] (let [port (.getPort self)]
                             (if (= port -1) nil port)))
-           ([^URI self ^Integer port]
-              (URI. (str (.getScheme self) "://"
-                         (if (.getRawUserInfo self)
-                           (str (.getRawUserInfo self) "@") "") (.getHost self)
-                         (if (< port 0) "" (if port (str ":" port) "")) (.getRawPath self)
-                         (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                         (if (.getRawFragment self) (str "#" (.getRawFragment self)))))))
+           ([^URI self ^Integer new-port]
+              (-> self uri (port new-port) str URI.)))
    :path (fn ([^URI self] (.getRawPath self))
-           ([^URI self ^String path]
-              (URI. (str (.getScheme self) "://"
-                          (.getRawAuthority self) path
-                          (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                          (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil)))))
+           ([^URI self ^String new-path]
+              (-> self uri (path new-path) str URI.)))
    :query (fn ([^URI self] (.getRawQuery self))
-            ([^URI self ^String query]
-               (URI. (str (.getScheme self) "://"
-                          (.getRawAuthority self) (.getRawPath self)
-                          (if query (str "?" query) nil)
-                          (if (.getRawFragment self) (str "#" (.getRawFragment self)) nil)))))
+            ([^URI self ^String new-query]
+               (-> self uri (query new-query) str URI.)))
    :fragment (fn ([^URI self] (.getRawFragment self))
-               ([^URI self ^String fragment]
-                  (URI. (str (.getScheme self) "://"
-                             (.getRawAuthority self) (.getRawPath self)
-                             (if (.getRawQuery self) (str "?" (.getRawQuery self)) nil)
-                             (if fragment (str "#" fragment) nil)))))})
+               ([^URI self ^String new-fragment]
+                  (-> self uri (fragment new-fragment) str URI.)))})
 
 (extend String
   UniformResourceIdentifier
@@ -273,34 +221,34 @@ another Uri object."
 
 (extend java.net.URL
   UniformResourceIdentifier
-  {:scheme (fn ([^URL self] (-> self .toURI scheme))
+  {:scheme (fn ([^URL self] (-> self uri scheme))
              ([^URL self ^String new-scheme]
-                (-> self .toURI ^URI (scheme new-scheme) .toURL)))
+                (-> self uri (scheme new-scheme) str URL.)))
    :scheme-specific-part (fn ([^URL self]
-                                (-> self .toURI scheme-specific-part))
+                                (-> self uri scheme-specific-part))
                            ([^URL self ^String ssp]
-                              (-> self .toURI ^URI (scheme-specific-part ssp) .toURL)))
-   :authority (fn ([^URL self] (-> self .toURI authority))
+                              (-> self uri (scheme-specific-part ssp) str URL.)))
+   :authority (fn ([^URL self] (-> self uri authority))
                 ([^URL self ^String new-authority]
-                   (-> self .toURI ^URI (authority new-authority) .toURL)))
-   :user-info (fn ([^URL self] (-> self .toURI user-info))
+                   (-> self uri (authority new-authority) str URL.)))
+   :user-info (fn ([^URL self] (-> self uri user-info))
                 ([^URL self ^String new-user-info]
-                   (-> self .toURI ^URI (user-info new-user-info) .toURL)))
-   :host (fn ([^URL self] (-> self .toURI host))
+                   (-> self uri (user-info new-user-info) str URL.)))
+   :host (fn ([^URL self] (-> self uri host))
            ([^URL self ^String new-host]
-              (-> self .toURI ^URI (host new-host) .toURL)))
-   :port (fn ([^URL self] (-> self .toURI port))
+              (-> self uri (host new-host) str URL.)))
+   :port (fn ([^URL self] (-> self uri port))
            ([^URL self ^Integer new-port]
-              (-> self .toURI ^URI (port new-port) .toURL)))
-   :path (fn ([^URL self] (-> self .toURI path))
+              (-> self uri (port new-port) str URL.)))
+   :path (fn ([^URL self] (-> self uri path))
            ([^URL self ^String new-path]
-              (-> self .toURI ^URI  (path new-path) .toURL)))
-   :query (fn ([^URL self] (-> self .toURI query))
+              (-> self uri (path new-path) str URL.)))
+   :query (fn ([^URL self] (-> self uri query))
             ([^URL self ^String new-query]
-               (-> self .toURI ^URI (query new-query) .toURL)))
-   :fragment (fn ([^URL self] (-> self .toURI fragment))
+               (-> self uri (query new-query) str URL.)))
+   :fragment (fn ([^URL self] (-> self uri fragment))
                ([^URL self ^String new-fragment]
-                  (-> self .toURI ^URI (fragment new-fragment) .toURL)))})
+                  (-> self uri (fragment new-fragment) str URL.)))})
 
 (defn uri->map
   "Convert a java.net.URI into a hash-map."
