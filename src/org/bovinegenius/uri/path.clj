@@ -17,7 +17,8 @@
 (defn normalize
   "Normalize the given path."
   [path]
-  (->> (split-path path)
+  (->> (str/replace path #"/+" "/")
+       split-path
        (remove (partial = "."))
        (reduce (fn [pieces element]
                  (if (= element "..")
