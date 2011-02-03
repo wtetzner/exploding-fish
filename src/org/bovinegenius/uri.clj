@@ -379,3 +379,8 @@ given, set the nth param value that matches the given key."
   "Resolve the given path against the given uri."
   [^UniformResourceIdentifier uri the-path]
   (path uri (-> (path uri) (path/resolve-path the-path))))
+
+(defn absolute?
+  "Returns true if the given uri is absolute."
+  [^UniformResourceIdentifier uri]
+  (-> uri path path/absolute?))
