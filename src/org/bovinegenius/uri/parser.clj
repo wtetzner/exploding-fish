@@ -31,12 +31,15 @@ parts."
 
 (defn clean-map
   "Remove keys that have a nil value, and that are in the given set."
-  [data keys]
-  (reduce (fn [data key]
-            (if (data key)
-              data
-              (dissoc data key)))
-          data keys))
+  ([data keys]
+     (reduce (fn [data key]
+               (if (not (nil? (data key)))
+                 data
+                 (dissoc data key)))
+             data keys))
+  ([data]
+     (->> (filter (fn [[key value]] (not (nil? value))) data)
+          (into (empty data)))))
 
 (defn parse-uri
   "Parse a URI string."
