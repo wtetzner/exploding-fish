@@ -34,7 +34,7 @@
   "Resolve one path against a base path."
   [base path]
   (if (absolute? path)
-    path
+    (normalize path)
     (let [base-parts (split-path base)
           path-parts (split-path path)]
       (->> (concat (butlast base-parts) path-parts)
