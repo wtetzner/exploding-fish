@@ -14,7 +14,7 @@
                    (assoc parts (-> parts count dec) (str (last parts) char))))
           [""])))
 
-(defn normalize
+(defn ^String normalize
   "Normalize the given path."
   [path]
   (->> (str/replace path #"/+" "/")
@@ -34,7 +34,7 @@
   [path]
   (.startsWith path "/"))
 
-(defn resolve-path
+(defn ^String resolve-path
   "Resolve one path against a base path."
   [base path]
   (if (absolute? path)
