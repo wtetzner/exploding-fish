@@ -346,7 +346,10 @@ given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
   ([^UniformResourceIdentifier uri key]
-     (-> uri (query-params key) last (URLDecoder/decode (default-encoding))))
+     (let [param (-> uri (query-params key) last)]
+       (if (nil? param)
+         nil
+         (URLDecoder/decode param (default-encoding)))))
   ([^UniformResourceIdentifier uri key value]
      (query uri (-> uri query-pairs
                     (alist-replace key (URLEncoder/encode value (default-encoding)))
