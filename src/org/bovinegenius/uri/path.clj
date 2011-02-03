@@ -21,9 +21,12 @@
        split-path
        (remove (partial = "."))
        (reduce (fn [pieces element]
-                 (if (= element "..")
-                   (pop pieces)
-                   (conj pieces element))) [])
+                 (cond (and (= element "..") (or (empty? pieces)
+                                                 (= (last pieces) "..")))
+                       (conj pieces element)
+
+                       (= element "..") (pop pieces)
+                       :else (conj pieces element))) [])
        (str/join "/")))
 
 (defn absolute?

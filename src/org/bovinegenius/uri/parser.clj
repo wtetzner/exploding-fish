@@ -15,7 +15,7 @@ and fragment parts."
 parts."
   [ssp]
   (if ssp
-    (let [[_ authority path query] (re-find #"^//([^/]+)([^\?]+)\??(.*)$" ssp)
+    (let [[_ authority path query] (re-find #"^//(.*?(?=\.\.|\./|/))([^\?]+)\??(.*)$" ssp)
           query (if (.contains ssp "?") query nil)]
       {:authority authority :path path :query query})
     {:authority nil :path nil :query nil}))
