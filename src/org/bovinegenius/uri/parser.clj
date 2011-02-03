@@ -44,9 +44,11 @@ parts."
 (defn parse-uri
   "Parse a URI string."
   [uri]
-  (let [generic (parse-generic uri)
-        scheme-specific (parse-scheme-specific (:scheme-specific-part generic))
-        authority (parse-authority (:authority scheme-specific))]
-    (->> (merge generic scheme-specific authority)
-         (filter (fn [[key value]] (not (nil? value))))
-         (into {}))))
+  (let [generic (parse-generic uri)]
+    (if (empty? (clean-map generic))
+      {:path uri}
+      (let [scheme-specific (parse-scheme-specific (:scheme-specific-part generic))
+            authority (parse-authority (:authority scheme-specific))]
+        (->> (merge generic scheme-specific authority)
+             clean-map
+             (into {}))))))
