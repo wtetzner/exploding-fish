@@ -1,6 +1,7 @@
 (ns org.bovinegenius.uri
   (:use (org.bovinegenius.uri query-string parser constructor)
         (clojure.contrib def))
+  (:require (org.bovinegenius.uri [path :as path]))
   (:import (java.net URI URL URLDecoder URLEncoder)))
 
 (defvar *default-encoding* (ref "UTF-8")
@@ -368,3 +369,13 @@ given, set the nth param value that matches the given key."
   "Returns a list of the query string keys of the given URI."
   [^UniformResourceIdentifier uri]
   (->> uri query-pairs (map first) vec))
+
+(defn normalize-path
+  "Normalize the path of the given uri."
+  [^UniformResourceIdentifier uri]
+  (->> (path uri) path/normalize (path uri)))
+
+(defn resolve-path
+  "Resolve the given path against the given uri."
+  [^UniformResourceIdentifier uri the-path]
+  (path uri (-> (path uri) (path/resolve-path the-path))))
