@@ -14,6 +14,12 @@
     *default-encoding*
     (deref *default-encoding*)))
 
+(defmacro with-encoding
+  "Run body with the given encoding as the default-encoding."
+  [encoding & body]
+  `(binding [*default-encoding* ~encoding]
+     ~@body))
+
 (defprotocol UniformResourceIdentifier
   "Protocol for dealing with URIs."
   (scheme
