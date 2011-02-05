@@ -141,7 +141,16 @@
   
   Object
   (toString [self] (build-uri-string data))
+  (equals [self other] (if (and (instance? (class self) other)
+                                (= (into {} other) data))
+                         true
+                         false))
+  (hashCode [self] (int (/ (+ (Integer. (.hashCode data))
+                              (Integer. (.hashCode (str self)))) 2)))
 
+  clojure.lang.IPersistentCollection
+  (equiv [self other] (.equals self other))
+  
   clojure.lang.IObj
   (withMeta [self mdata] (Uri. data mdata))
   
