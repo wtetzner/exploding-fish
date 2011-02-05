@@ -1,4 +1,5 @@
-(ns org.bovinegenius.uri.parser)
+(ns org.bovinegenius.uri.parser
+  (:require (clojure [string :as str])))
 
 (defn parse-generic
   "Takes a URI string and parses it into scheme, scheme-specific-part,
@@ -15,8 +16,12 @@ and fragment parts."
 parts."
   [ssp]
   (if ssp
-    (let [[_ authority path query] (re-find #"^//(.*?(?=\.\.|\./|/))([^\?]+)\??(.*)$" ssp)
-          query (if (.contains ssp "?") query nil)]
+    (let [[front & query] (str/split ssp #"\?")
+          query (reduce str query)
+          query (if (.contains ssp "?") query nil)
+          auth-path (last (re-find #"^//(.*)$" front))
+          [_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
+          path (if (empty? path) nil path the )]
       {:authority authority :path path :query query})
     {:authority nil :path nil :query nil}))
 
