@@ -350,6 +350,20 @@ given, set the nth param value that matches the given key."
                     (alist-replace key value index)
                     alist->query-string))))
 
+(defn- encode-param
+  "Encode a query key or param. If the value is nil, just return nil."
+  [text]
+  (if (nil? text)
+    nil
+    (URLEncoder/encode text (default-encoding))))
+
+(defn- decode-param
+  "Decode a query key or param. If the value is nil, just return nil."
+  [text]
+  (if (nil? text)
+    nil
+    (URLDecoder/decode text (default-encoding))))
+
 (defn query-param
   "Get the last param value that matches the given key. If 3 args are
 given, set the first param value that matches the given key, and
@@ -357,16 +371,14 @@ remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
   ([^UniformResourceIdentifier uri key]
      (let [param (-> uri (query-params key) last)]
-       (if (nil? param)
-         nil
-         (URLDecoder/decode param (default-encoding)))))
+       (decode-param param)))
   ([^UniformResourceIdentifier uri key value]
      (query uri (-> uri query-pairs
-                    (alist-replace key (URLEncoder/encode value (default-encoding)))
+                    (alist-replace (encode-param key) (encode-param value))
                     alist->query-string)))
   ([^UniformResourceIdentifier uri key value index]
      (query uri (-> uri query-pairs
-                    (alist-replace key (URLEncoder/encode value (default-encoding)) index)
+                    (alist-replace (encode-param key) (encode-param value) index)
                     alist->query-string))))
 
 (defn query-map
