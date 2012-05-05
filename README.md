@@ -85,6 +85,13 @@ providing an additional argument.
     user> (fragment (URI. "http://www.example.com/#fragment") "it-works-on-java-uris")
     #<URI http://www.example.com/#it-works-on-java-uris>
 
+Other Namespaces
+----------------
+
+There are functions for dealing with query strings and paths in
+org.bovinegenius.exploding-fish.query-string an
+org.bovinegenius.exploding-fish.path, respectively.
+
 License
 -------
 
