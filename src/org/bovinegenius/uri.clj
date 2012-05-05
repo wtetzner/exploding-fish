@@ -1,11 +1,11 @@
 (ns org.bovinegenius.uri
-  (:use (org.bovinegenius.uri query-string parser constructor)
-        (clojure.contrib def))
+  (:use (org.bovinegenius.uri query-string parser constructor))
   (:require (org.bovinegenius.uri [path :as path]))
   (:import (java.net URI URL URLDecoder URLEncoder)))
 
-(defvar *default-encoding* (ref "UTF-8")
-  "Default encoding for query params.")
+(def ^:dynamic *default-encoding*
+  "Default encoding for query params."
+  (ref "UTF-8"))
 
 (defn default-encoding
   "Get the default encoding for query params."
@@ -50,9 +50,10 @@
     [self] [self new-fragment]
     "Get or set the fragment of the URI."))
 
-(defvar- *uri-keys* #{:scheme :scheme-specific-part :authority
-                      :user-info :host :port :path :query
-                      :fragment})
+(def ^{:dynamic true, :private true}
+  *uri-keys* #{:scheme :scheme-specific-part :authority
+               :user-info :host :port :path :query
+               :fragment})
 
 (deftype Uri [data metadata]
   UniformResourceIdentifier
