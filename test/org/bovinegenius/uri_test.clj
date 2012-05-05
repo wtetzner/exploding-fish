@@ -6,30 +6,30 @@
 
 (deftest uri-test
   (let [uri-string "http://www.fred.net/"]
-    (is (= (into {} (uri uri-string))
-           (into {} (uri (URI. uri-string)))
-           (into {} (uri (URL. uri-string)))
-           (into {} (uri {:host "www.fred.net",
-                          :path "/",
-                          :authority "www.fred.net",
-                          :scheme "http",
-                          :scheme-specific-part "//www.fred.net/"}))
+    (is (= (into {} (seq (uri uri-string)))
+           (into {} (seq (uri (URI. uri-string))))
+           (into {} (seq (uri (URL. uri-string))))
+           (into {} (seq (uri {:host "www.fred.net",
+                               :path "/",
+                               :authority "www.fred.net",
+                               :scheme "http",
+                               :scheme-specific-part "//www.fred.net/"})))
            {:host "www.fred.net",
             :path "/",
             :authority "www.fred.net",
             :scheme "http",
             :scheme-specific-part "//www.fred.net/"})))
   (let [uri-string "http://www.domain.net/with?query=and#fragment"]
-    (is (= (into {} (uri uri-string))
-           (into {} (uri (URI. uri-string)))
-           (into {} (uri (URL. uri-string)))
-           (into {} (uri {:host "www.domain.net",
-                          :query "query=and",
-                          :path "/with",
-                          :authority "www.domain.net",
-                          :scheme "http",
-                          :scheme-specific-part "//www.domain.net/with?query=and",
-                          :fragment "fragment"}))           
+    (is (= (into {} (seq (uri uri-string)))
+           (into {} (seq (uri (URI. uri-string))))
+           (into {} (seq (uri (URL. uri-string))))
+           (into {} (seq (uri {:host "www.domain.net",
+                               :query "query=and",
+                               :path "/with",
+                               :authority "www.domain.net",
+                               :scheme "http",
+                               :scheme-specific-part "//www.domain.net/with?query=and",
+                               :fragment "fragment"})))           
            {:host "www.domain.net",
             :query "query=and",
             :path "/with",
@@ -38,17 +38,17 @@
             :scheme-specific-part "//www.domain.net/with?query=and",
             :fragment "fragment"})))
   (let [uri-string "http://www.domain.net:8080/with?query=and#fragment"]
-    (is (= (into {} (uri uri-string))
-           (into {} (uri (URI. uri-string)))
-           (into {} (uri (URL. uri-string)))
-           (into {} (uri {:port 8080,
-                          :host "www.domain.net",
-                          :query "query=and",
-                          :path "/with",
-                          :authority "www.domain.net:8080",
-                          :scheme "http",
-                          :scheme-specific-part "//www.domain.net:8080/with?query=and",
-                          :fragment "fragment"}))
+    (is (= (into {} (seq (uri uri-string)))
+           (into {} (seq (uri (URI. uri-string))))
+           (into {} (seq (uri (URL. uri-string))))
+           (into {} (seq (uri {:port 8080,
+                               :host "www.domain.net",
+                               :query "query=and",
+                               :path "/with",
+                               :authority "www.domain.net:8080",
+                               :scheme "http",
+                               :scheme-specific-part "//www.domain.net:8080/with?query=and",
+                               :fragment "fragment"})))
            {:port 8080,
             :host "www.domain.net",
             :query "query=and",
