@@ -28,7 +28,8 @@ java.lang.String.
 
 ### Creating a Uri
 
-Exploding Fish comes with a Uri class, which behaves like a map, except that it ensures that it's values are always consistent.
+Exploding Fish comes with a Uri class, which behaves like a map,
+except that it ensures that it's values are always consistent.
 
 For example,
 
@@ -45,7 +46,9 @@ For example,
 
 ### Accessor Functions
 
-While a benifit of using the Uri class is that you can treat it as a map, the benefit of the accessor functions is that they work on different types.
+While a benifit of using the Uri class is that you can treat it as a
+map, the benefit of the accessor functions is that they work on
+different types.
 
 * scheme
 * scheme-specific-part
@@ -67,6 +70,20 @@ While a benifit of using the Uri class is that you can treat it as a map, the be
     "fragment"
     user> (fragment (uri "http://www.example.com/#fragment"))
     "fragment"
+
+#### Updating URIs
+
+The accessor functions can be used to update URIs as well, by
+providing an additional argument.
+
+    user> (fragment (uri "http://www.example.com/#fragment") nil)
+    #<Uri http://www.example.com/>
+    user> (host (uri "http://www.example.com/#fragment") "www.bovinegenius.org")
+    #<Uri http://www.bovinegenius.org/#fragment>
+    user> (host "http://www.example.com/#fragment" "www.bovinegenius.org")
+    "http://www.bovinegenius.org/#fragment"
+    user> (fragment (URI. "http://www.example.com/#fragment") "it-works-on-java-uris")
+    #<URI http://www.example.com/#it-works-on-java-uris>
 
 License
 -------
