@@ -58,6 +58,57 @@
             :scheme-specific-part "//www.domain.net:8080/with?query=and",
             :fragment "fragment"}))))
 
+(deftest protocol-fns
+  (let [string "http://someone@www.pureawesomeness.org:8088/some/path?x=y&a=b#awesomeness"
+        java-uri (URI. string)
+        java-url (URL. string)
+        uri-obj (uri string)]
+    (is (= (scheme string)
+           (scheme java-uri)
+           (scheme java-url)
+           (scheme uri-obj)
+           "http"))
+    (is (= (scheme-specific-part string)
+           (scheme-specific-part java-uri)
+           (scheme-specific-part java-url)
+           (scheme-specific-part uri-obj)
+           "//someone@www.pureawesomeness.org:8088/some/path?x=y&a=b"))
+    (is (= (authority string)
+           (authority java-uri)
+           (authority java-url)
+           (authority uri-obj)
+           "someone@www.pureawesomeness.org:8088"))
+    (is (= (user-info string)
+           (user-info java-uri)
+           (user-info java-url)
+           (user-info uri-obj)
+           "someone"))
+    (is (= (host string)
+           (host java-uri)
+           (host java-url)
+           (host uri-obj)
+           "www.pureawesomeness.org"))
+    (is (= (port string)
+           (port java-uri)
+           (port java-url)
+           (port uri-obj)
+           8088))
+    (is (= (path string)
+           (path java-uri)
+           (path java-url)
+           (path uri-obj)
+           "/some/path"))
+    (is (= (query string)
+           (query java-uri)
+           (query java-url)
+           (query uri-obj)
+           "x=y&a=b"))
+    (is (= (fragment string)
+           (fragment java-uri)
+           (fragment java-url)
+           (fragment uri-obj)
+           "awesomeness"))))
+
 (deftest uri->map-test
   (is (= (uri->map (URI. "http://www.test.com:8080/some/stuff.html#frag"))
          {:path "/some/stuff.html",
@@ -87,5 +138,3 @@
   (is (= (alist->query-string
           (query-pairs "http://www.some-thing.com/a/path?one=1&two=2&x=&y&&=&=a"))
          "one=1&two=2&x=&y&&=&=a")))
-
-
