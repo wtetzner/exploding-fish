@@ -19,9 +19,9 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(ns org.bovinegenius.uri
-  (:use (org.bovinegenius.uri query-string parser constructor))
-  (:require (org.bovinegenius.uri [path :as path]))
+(ns org.bovinegenius.exploding-fish
+  (:use (org.bovinegenius.exploding-fish query-string parser constructor))
+  (:require (org.bovinegenius.exploding-fish [path :as path]))
   (:import (java.net URI URL URLDecoder URLEncoder)))
 
 (def ^:dynamic *default-encoding*
