@@ -19,7 +19,7 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(ns org.bovinegenius.uri.query-string
+(ns org.bovinegenius.exploding-fish.query-string
   (:require (clojure [string :as str])))
 
 (defn query-string->list

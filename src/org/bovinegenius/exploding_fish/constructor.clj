@@ -19,7 +19,7 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(ns org.bovinegenius.uri.constructor)
+(ns org.bovinegenius.exploding-fish.constructor)
 
 (defn ^String build-authority
   "Takes a map with :user-info, :host, and :port keys, and returns a

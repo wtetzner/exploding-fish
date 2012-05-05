@@ -1,6 +1,6 @@
 (ns org.bovinegenius.uri_test
-  (:use (org.bovinegenius uri)
-        (org.bovinegenius.uri query-string)
+  (:use (org.bovinegenius exploding-fish)
+        (org.bovinegenius.exploding-fish query-string)
         (clojure test))
   (:import (java.net URI URL)))
 
