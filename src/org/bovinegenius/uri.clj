@@ -315,30 +315,30 @@ another Uri object."
 
 (defn query-list
   "Returns a list from the query string of the given URI."
-  [^UniformResourceIdentifier uri]
+  [uri]
   (-> uri query query-string->list))
 
 (defn query-pairs
   "Returns an alist of the query params matching the given key. If no
 key is given, an alist of all the query params is returned."
-  ([^UniformResourceIdentifier uri key]
+  ([uri key]
      (->> uri query-pairs
           (filter (fn [[param-key value]]
                     (= param-key key)))
           vec))
-  ([^UniformResourceIdentifier uri]
+  ([uri]
      (-> uri query query-string->alist)))
 
 (defn query-params
   "Returns an alist of the query values whose key matches the given key. If no
 key is given, all values are returned."
-  ([^UniformResourceIdentifier uri key]
+  ([uri key]
      (->> uri query-pairs
           (filter (fn [[param-key value]]
                     (= param-key key)))
           (map second)
           vec))
-  ([^UniformResourceIdentifier uri]
+  ([uri]
      (->> uri query query-string->alist (map second) vec)))
 
 (defn query-param-raw
@@ -346,13 +346,13 @@ key is given, all values are returned."
 given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
-  ([^UniformResourceIdentifier uri key]
+  ([uri key]
      (-> uri (query-params key) last))
-  ([^UniformResourceIdentifier uri key value]
+  ([uri key value]
      (query uri (-> uri query-pairs
                     (alist-replace key value)
                     alist->query-string)))
-  ([^UniformResourceIdentifier uri key value index]
+  ([uri key value index]
      (query uri (-> uri query-pairs
                     (alist-replace key value index)
                     alist->query-string))))
@@ -376,39 +376,39 @@ given, set the nth param value that matches the given key."
 given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
-  ([^UniformResourceIdentifier uri key]
+  ([uri key]
      (let [param (-> uri (query-params key) last)]
        (decode-param param)))
-  ([^UniformResourceIdentifier uri key value]
+  ([uri key value]
      (query uri (-> uri query-pairs
                     (alist-replace (encode-param key) (encode-param value))
                     alist->query-string)))
-  ([^UniformResourceIdentifier uri key value index]
+  ([uri key value index]
      (query uri (-> uri query-pairs
                     (alist-replace (encode-param key) (encode-param value) index)
                     alist->query-string))))
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."
-  [^UniformResourceIdentifier uri]
+  [uri]
   (->> uri query-pairs (into {})))
 
 (defn query-keys
   "Returns a list of the query string keys of the given URI."
-  [^UniformResourceIdentifier uri]
+  [uri]
   (->> uri query-pairs (map first) vec))
 
 (defn normalize-path
   "Normalize the path of the given uri."
-  [^UniformResourceIdentifier uri]
+  [uri]
   (->> (path uri) path/normalize (path uri)))
 
 (defn resolve-path
   "Resolve the given path against the given uri."
-  [^UniformResourceIdentifier uri the-path]
+  [uri the-path]
   (path uri (-> (path uri) (path/resolve-path the-path))))
 
 (defn absolute?
   "Returns true if the given uri is absolute."
-  [^UniformResourceIdentifier uri]
+  [uri]
   (-> uri path path/absolute?))

@@ -21,7 +21,7 @@ parts."
           query (if (.contains ssp "?") query nil)
           auth-path (last (re-find #"^//(.*)$" front))
           [_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
-          path (if (empty? path) nil path the )]
+          path (if (empty? path) nil path)]
       {:authority authority :path path :query query})
     {:authority nil :path nil :query nil}))
 
