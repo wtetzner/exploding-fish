@@ -12,7 +12,55 @@ To use with Leiningen, add
     :dependencies [[org.bovinegenius/exploding-fish]]
 to your project.clj.
 
+You can use it in a source file like this:
+    (:use (org.bovinegenius exploding-fish))
+or
+    (:require (org.bovinegenius [exploding-fish :as uri]))
 
+The functions in Exploding Fish that are used to access URI values
+work on objects of type Uri, java.net.URI, java.net.URL, and
+java.lang.String.
+
+### Creating a Uri
+
+Exploding Fish comes with a Uri class, which behaves like a map, except that it ensures that it's values are always consistent.
+
+For example,
+    user> (:host (uri "http://www.example.com/"))
+    "www.example.com"
+    user> (assoc (uri "http://www.example.com/") :port 8080)
+    #<Uri http://www.example.com:8080/>
+    user> (def the-uri (uri "http://www.example.com/"))
+    #'user/the-uri
+    user> (:scheme-specific-part the-uri)
+    "//www.example.com/"
+    user> (:scheme-specific-part (assoc the-uri :port 8080))
+    "//www.example.com:8080/"
+
+### Accessor Functions
+
+While a benifit of using the Uri class is that you can treat it as a map, the benefit of the accessor functions is that they work on different types.
+
+* scheme
+* scheme-specific-part
+* authority
+* user-info
+* host
+* port
+* path
+* query
+* fragment
+
+#### Example Usage
+
+    user> (scheme "http://www.example.com/")
+    "http"
+    user> (scheme (URI. "http://www.example.com/"))
+    "http"
+    user> (fragment (URL. "http://www.example.com/#fragment"))
+    "fragment"
+    user> (fragment (uri "http://www.example.com/#fragment"))
+    "fragment"
 
 License
 -------
