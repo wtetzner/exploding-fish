@@ -9,7 +9,7 @@ Usage
 -----
 
 To use with Leiningen, add
-    :dependencies [[org.bovinegenius/exploding-fish]]
+    :dependencies [[org.bovinegenius/exploding-fish "0.1.0"]]
 to your project.clj.
 
 You can use it in a source file like this:
