@@ -9,12 +9,17 @@ Usage
 -----
 
 To use with Leiningen, add
+
     :dependencies [[org.bovinegenius/exploding-fish "0.1.0"]]
+
 to your project.clj.
 
 You can use it in a source file like this:
+
     (:use (org.bovinegenius exploding-fish))
+
 or
+
     (:require (org.bovinegenius [exploding-fish :as uri]))
 
 The functions in Exploding Fish that are used to access URI values
@@ -26,6 +31,7 @@ java.lang.String.
 Exploding Fish comes with a Uri class, which behaves like a map, except that it ensures that it's values are always consistent.
 
 For example,
+
     user> (:host (uri "http://www.example.com/"))
     "www.example.com"
     user> (assoc (uri "http://www.example.com/") :port 8080)
