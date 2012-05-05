@@ -185,6 +185,10 @@
   clojure.lang.IMeta
   (meta [self] metadata))
 
+(defmethod print-method Uri [obj writer]
+  (.write writer (format "#<Uri %s>"
+                         (str obj))))
+
 (defn uri
   "Builds a Uri object. Takes a map of URI keys, a URI string, or
 another Uri object."
