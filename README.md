@@ -108,7 +108,7 @@ You can take a query string apart into an alist, and put it back together as the
 
     user> (split-path "/some/path")
     ["" "some" "path"]
-    user> (path/split-path "some/path")
+    user> (split-path "some/path")
     ["some" "path"]
     user> (resolve-path "/a/path/" "some/other/path")
     "/a/path/some/other/path"
