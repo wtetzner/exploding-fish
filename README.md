@@ -164,38 +164,6 @@ There are some path functions to make working with URIs easier.
     user> (absolute? (uri "/new/path?x=y&a=w"))
     false
 
-Other Namespaces
-----------------
-
-There are functions for dealing with query strings and paths in
-org.bovinegenius.exploding-fish.query-string and
-org.bovinegenius.exploding-fish.path, respectively.
-
-### Query String
-
-    user> (query-string->alist (query "http://www.example.com/?x=y&stuff=fred"))
-    [["x" "y"] ["stuff" "fred"]]
-
-You can take a query string apart into an alist, and put it back together as the exact same query string.
-
-    user> (query-string->alist (query "http://www.example.com/?stuff=fred&&x=&=&=y"))
-    [["stuff" "fred"] ["" nil] ["x" ""] ["" ""] ["" "y"]]
-    user> (alist->query-string (query-string->alist (query "http://www.example.com/?stuff=fred&&x=&=&=y")))
-    "stuff=fred&&x=&=&=y"
-
-### Path
-
-    user> (split-path "/some/path")
-    ["" "some" "path"]
-    user> (split-path "some/path")
-    ["some" "path"]
-    user> (resolve-path "/a/path/" "some/other/path")
-    "/a/path/some/other/path"
-    user> (resolve-path "/a/path/" "/some/other/path")
-    "/some/other/path"
-    user> (normalize "/some/path/../other/./stuff")
-    "/some/other/stuff"
-
 License
 -------
 
