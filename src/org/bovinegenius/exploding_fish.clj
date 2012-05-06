@@ -1,4 +1,4 @@
-;; Copyright (c) 2012 Walter Tetzner
+;; Copyright (c) 2011,2012 Walter Tetzner
 
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -343,18 +343,61 @@ another Uri object."
   [uri]
   (-> uri query query-string->list))
 
-(defn query-pairs
+(defn raw-pairs
   "Returns an alist of the query params matching the given key. If no
 key is given, an alist of all the query params is returned."
   ([uri key]
-     (->> uri query-pairs
+     (->> uri query-string->alist
           (filter (fn [[param-key value]]
                     (= param-key key)))
           vec))
   ([uri]
      (-> uri query query-string->alist)))
 
-(defn query-params
+(defn- encode-param
+  "Encode a query key or param. If the value is nil, just return nil."
+  [text]
+  (if (string? text)
+    (URLEncoder/encode text (default-encoding))
+    text))
+
+(defn- decode-param
+  "Decode a query key or param. If the value is nil, just return nil."
+  [text]
+  (if (string? text)
+    (URLDecoder/decode text (default-encoding))
+    text))
+
+(defn query-pairs
+  "Returns an alist of the query params matching the given key. If no
+key is given, an alist of all the query params is returned. The keys
+and values of the pairs are URL decoded."
+  ([uri key]
+     (->> uri raw-pairs
+          (map (fn [[key val]]
+                 [(decode-param key) (decode-param val)]))
+          (filter (fn [[param-key value]]
+                    (= param-key key)))
+          vec))
+  ([uri]
+     (->> uri raw-pairs
+          (map (fn [[key val]]
+                 [(decode-param key) (decode-param val)]))
+          vec)))
+
+(defn params-raw
+  "Returns an alist of the query values whose key matches the given key. If no
+key is given, all values are returned."
+  ([uri key]
+     (->> uri raw-pairs
+          (filter (fn [[param-key value]]
+                    (= param-key key)))
+          (map second)
+          vec))
+  ([uri]
+     (->> uri raw-pairs (map second) vec)))
+
+(defn params
   "Returns an alist of the query values whose key matches the given key. If no
 key is given, all values are returned."
   ([uri key]
@@ -364,59 +407,51 @@ key is given, all values are returned."
           (map second)
           vec))
   ([uri]
-     (->> uri query query-string->alist (map second) vec)))
+     (->> uri query-pairs (map second) vec)))
 
-(defn query-param-raw
+(defn param-raw
   "Get the last param value that matches the given key. If 3 args are
 given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
   ([uri key]
-     (-> uri (query-params key) last))
+     (-> uri (params-raw key) last))
   ([uri key value]
-     (query uri (-> uri query-pairs
+     (query uri (-> uri raw-pairs
                     (alist-replace key value)
                     alist->query-string)))
   ([uri key value index]
-     (query uri (-> uri query-pairs
+     (query uri (-> uri raw-pairs
                     (alist-replace key value index)
                     alist->query-string))))
 
-(defn- encode-param
-  "Encode a query key or param. If the value is nil, just return nil."
-  [text]
-  (if (nil? text)
-    nil
-    (URLEncoder/encode text (default-encoding))))
-
-(defn- decode-param
-  "Decode a query key or param. If the value is nil, just return nil."
-  [text]
-  (if (nil? text)
-    nil
-    (URLDecoder/decode text (default-encoding))))
-
-(defn query-param
+(defn param
   "Get the last param value that matches the given key. If 3 args are
 given, set the first param value that matches the given key, and
 remove the remaining params that match the given key. If 4 args are
 given, set the nth param value that matches the given key."
   ([uri key]
-     (let [param (-> uri (query-params key) last)]
-       (decode-param param)))
+     (-> uri (params key) last))
   ([uri key value]
-     (query uri (-> uri query-pairs
-                    (alist-replace (encode-param key) (encode-param value))
-                    alist->query-string)))
+     (query uri (->> (alist-replace (query-pairs uri) key value)
+                     (map (fn [[key val]]
+                            [(encode-param key) (encode-param val)]))
+                     alist->query-string)))
   ([uri key value index]
-     (query uri (-> uri query-pairs
-                    (alist-replace (encode-param key) (encode-param value) index)
-                    alist->query-string))))
+     (query uri (->> (alist-replace (query-pairs uri) key value index)
+                     (map (fn [[key val]]
+                            [(encode-param key) (encode-param val)]))
+                     alist->query-string))))
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."
   [uri]
   (->> uri query-pairs (into {})))
+
+(defn raw-keys
+  "Returns a list of the query string keys of the given URI."
+  [uri]
+  (->> uri raw-pairs (map first) vec))
 
 (defn query-keys
   "Returns a list of the query string keys of the given URI."
@@ -433,7 +468,12 @@ given, set the nth param value that matches the given key."
   [uri the-path]
   (path uri (-> (path uri) (path/resolve-path the-path))))
 
-(defn absolute?
-  "Returns true if the given uri is absolute."
+(defn absolute-path?
+  "Returns true if the given uri path is absolute."
   [uri]
   (-> uri path path/absolute?))
+
+(defn absolute?
+  "Returns true if the given URI is absolute."
+  [uri]
+  (boolean (authority uri)))

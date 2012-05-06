@@ -1,4 +1,4 @@
-;; Copyright (c) 2012 Walter Tetzner
+;; Copyright (c) 2011,2012 Walter Tetzner
 
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -20,7 +20,8 @@
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish.query-string
-  (:require (clojure [string :as str])))
+  (:require (clojure [string :as str]))
+  (:import (java.net URLDecoder URLEncoder)))
 
 (defn query-string->list
   "Convert a query string into a list by separating on &'s."

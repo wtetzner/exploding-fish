@@ -85,6 +85,85 @@ providing an additional argument.
     user> (fragment (URI. "http://www.example.com/#fragment") "it-works-on-java-uris")
     #<URI http://www.example.com/#it-works-on-java-uris>
 
+
+#### Query Params
+
+There are several functions meant to make dealing with query string parameters easier.
+
+`query-pairs` returns the query string as an alist, decoded using
+`org.bovinegenius.exploding-fish/*default-encoding*`. The encoding can
+be bound using the `default-encoding` macro. If not specifically
+bound, the value of `*default-encoding*` is "UTF-8".
+
+    user> (query-pairs "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2")
+    [["x" "y"] ["a" "w"] ["d x" "m=f"] ["a" "x"] ["m" "2"]]
+
+`params` will lookup the value of all params with the given key. If no
+key is given, all param values are returned.
+
+    user> (params "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "a")
+    ["w" "x"]
+    user> (params "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "d x")
+    ["m=f"]
+
+`param` will lookup the *last* value with the given key. If a value is
+given, it will "set" the value of the given key. In the case where
+there are multiple values for the given key, it will set the first
+one, and remove the remaining. If a key, value, and index are given,
+it will set the value at the given index. If the index is larger than
+any value with that key, it will append a key-value pair.
+
+    user> (param "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "d x")
+    "m=f"
+    user> (param "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "a")
+    "x"
+    user> (param "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "d x" "new-value")
+    "http://www.test.net/some/path?x=y&a=w&d+x=new-value&a=x&m=2"
+    user> (param "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "a" "new-value")
+    "http://www.test.net/some/path?x=y&a=new-value&d+x=m%3Df&m=2"
+    user> (param "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "a" "new-value" 1)
+    "http://www.test.net/some/path?x=y&a=w&d+x=m%3Df&a=new-value&m=2"
+    user> (param "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2" "a" "new-value" 2)
+    "http://www.test.net/some/path?x=y&a=w&d+x=m%3Df&a=x&m=2&a=new-value"
+
+`query-map` will build a map from the query string. The last value for
+a given key will "win."
+
+    user> (query-map "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2")
+    {"x" "y", "a" "x", "d x" "m=f", "m" "2"}
+
+`query-keys` will return all of the keys (not distinct) in the query
+string.
+
+    user> (query-keys "http://www.test.net/some/path?x=y&a=w&d%20x=m%3df&a=x&m=2")
+    ["x" "a" "d x" "a" "m"]
+
+`raw-pairs`, `params-raw`, `param-raw`, and `raw-keys` are versions of the above functions that will not automatically URL encode and decode the parameters.
+
+#### Paths
+
+There are some path functions to make working with URIs easier.
+
+`normalize-path` will normalize a path, collapsing things like
+'/some/url/../path' to '/some/path'.
+
+    user> (normalize-path "http://www.test.net/some/uri/../path/./here?x=y&a=w")
+    "http://www.test.net/some/path/here?x=y&a=w"
+
+`resolve-path` will resolve a path against the given URI.
+
+    user> (resolve-path "http://www.test.net/some/uri/../path/./here?x=y&a=w" "new/path")
+    "http://www.test.net/some/path/new/path?x=y&a=w"
+    user> (resolve-path "http://www.test.net/some/uri/../path/./here?x=y&a=w" "/new/path")
+    "http://www.test.net/new/path?x=y&a=w"
+
+`absolute?` returns true if the URI is absolute.
+
+    user> (absolute? (uri "http://www.test.net/new/path?x=y&a=w"))
+    true
+    user> (absolute? (uri "/new/path?x=y&a=w"))
+    false
+
 Other Namespaces
 ----------------
 
@@ -122,7 +201,7 @@ License
 
 Exploding Fish is under the MIT License.
 
-Copyright (c) 2012 Walter Tetzner
+Copyright (c) 2011,2012 Walter Tetzner
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
