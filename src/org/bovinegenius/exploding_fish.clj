@@ -20,8 +20,11 @@
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish
-  (:use (org.bovinegenius.exploding-fish query-string parser constructor))
-  (:require (org.bovinegenius.exploding-fish [path :as path]))
+  (:require (org.bovinegenius.exploding-fish
+             [path :as path]
+             [query-string :as qs]
+             [parser :as parse]
+             [constructor :as build]))
   (:import (java.net URI URL URLDecoder URLEncoder)))
 
 (def ^:dynamic *default-encoding*
@@ -80,67 +83,67 @@
   UniformResourceIdentifier
   (scheme [self] (:scheme data))
   (scheme [self new-scheme] (-> (assoc data :scheme new-scheme)
-                                (clean-map *uri-keys*)
+                                (parse/clean-map *uri-keys*)
                                 (Uri. metadata)))
   (scheme-specific-part [self] (:scheme-specific-part data))
   (scheme-specific-part [self ssp] (let [new-data (assoc data :scheme-specific-part ssp)
-                                         ssp-data (parse-scheme-specific ssp)
-                                         auth-data (parse-authority (:authority ssp-data))]
+                                         ssp-data (parse/scheme-specific ssp)
+                                         auth-data (parse/authority (:authority ssp-data))]
                                      (-> (merge new-data ssp-data auth-data)
-                                         (clean-map *uri-keys*)
+                                         (parse/clean-map *uri-keys*)
                                          (Uri. metadata))))
   (authority [self] (:authority data))
   (authority [self authority] (let [new-data (assoc data :authority authority)
-                                    auth-data (parse-authority authority)]
+                                    auth-data (parse/authority authority)]
                                 (-> (merge new-data auth-data)
-                                    (clean-map *uri-keys*)
+                                    (parse/clean-map *uri-keys*)
                                     (Uri. metadata))))
   (user-info [self] (:user-info data))
   (user-info [self user-info] (let [new-data (assoc data :user-info user-info)
-                                    authority (build-authority new-data)
+                                    authority (build/authority new-data)
                                     new-data (assoc new-data :authority authority)
-                                    ssp (build-scheme-specific new-data)
+                                    ssp (build/scheme-specific new-data)
                                     new-data (assoc new-data :scheme-specific-part ssp)]
                                 (-> new-data
-                                    (clean-map *uri-keys*)
+                                    (parse/clean-map *uri-keys*)
                                     (Uri. metadata))))
   (host [self] (:host self))
   (host [self host] (let [new-data (assoc data :host host)
-                          authority (build-authority new-data)
+                          authority (build/authority new-data)
                           new-data (assoc new-data :authority authority)
-                          ssp (build-scheme-specific new-data)
+                          ssp (build/scheme-specific new-data)
                           new-data (assoc new-data :scheme-specific-part ssp)]
                       (-> new-data
-                          (clean-map *uri-keys*)
+                          (parse/clean-map *uri-keys*)
                           (Uri. metadata))))
   (port [self] (:port self))
   (port [self port] (let [new-data (if (and port (>= port 0))
                                      (assoc data :port port)
                                      (dissoc data :port))
-                          authority (build-authority new-data)
+                          authority (build/authority new-data)
                           new-data (assoc new-data :authority authority)
-                          ssp (build-scheme-specific new-data)
+                          ssp (build/scheme-specific new-data)
                           new-data (assoc new-data :scheme-specific-part ssp)]
                       (-> new-data
-                          (clean-map *uri-keys*)
+                          (parse/clean-map *uri-keys*)
                           (Uri. metadata))))
   (path [self] (:path self))
   (path [self path] (let [new-data (assoc data :path path)
-                          ssp (build-scheme-specific new-data)
+                          ssp (build/scheme-specific new-data)
                           new-data (assoc new-data :scheme-specific-part ssp)]
                       (-> new-data
-                          (clean-map *uri-keys*)
+                          (parse/clean-map *uri-keys*)
                           (Uri. metadata))))
   (query [self] (:query self))
   (query [self query] (let [new-data (assoc data :query query)
-                            ssp (build-scheme-specific new-data)
+                            ssp (build/scheme-specific new-data)
                             new-data (assoc new-data :scheme-specific-part ssp)]
                         (-> new-data
-                            (clean-map *uri-keys*)
+                            (parse/clean-map *uri-keys*)
                             (Uri. metadata))))
   (fragment [self] (:fragment self))
   (fragment [self fragment] (-> (assoc data :fragment fragment)
-                                (clean-map *uri-keys*)
+                                (parse/clean-map *uri-keys*)
                                 (Uri. metadata)))
   
   clojure.lang.Associative
@@ -168,7 +171,7 @@
   clojure.lang.IPersistentMap
   
   Object
-  (toString [self] (build-uri-string data))
+  (toString [self] (build/uri-string data))
   (equals [self other] (if (and (instance? (class self) other)
                                 (= (into {} other) data))
                          true
@@ -196,8 +199,8 @@ another Uri object."
   (condp instance? uri
     Uri uri
     clojure.lang.IPersistentMap (Uri. uri (meta uri))
-    java.lang.String (Uri. (parse-uri uri) nil)
-    (Uri. (-> uri str str parse-uri) nil)))
+    java.lang.String (Uri. (parse/uri uri) nil)
+    (Uri. (-> uri str str parse/uri) nil)))
 
 (extend java.net.URI
   UniformResourceIdentifier
@@ -341,18 +344,18 @@ another Uri object."
 (defn query-list
   "Returns a list from the query string of the given URI."
   [uri]
-  (-> uri query query-string->list))
+  (-> uri query qs/query-string->list))
 
 (defn raw-pairs
   "Returns an alist of the query params matching the given key. If no
 key is given, an alist of all the query params is returned."
   ([uri key]
-     (->> uri query-string->alist
+     (->> uri qs/query-string->alist
           (filter (fn [[param-key value]]
                     (= param-key key)))
           vec))
   ([uri]
-     (-> uri query query-string->alist)))
+     (-> uri query qs/query-string->alist)))
 
 (defn- encode-param
   "Encode a query key or param. If the value is nil, just return nil."
@@ -418,12 +421,12 @@ given, set the nth param value that matches the given key."
      (-> uri (params-raw key) last))
   ([uri key value]
      (query uri (-> uri raw-pairs
-                    (alist-replace key value)
-                    alist->query-string)))
+                    (qs/alist-replace key value)
+                    qs/alist->query-string)))
   ([uri key value index]
      (query uri (-> uri raw-pairs
-                    (alist-replace key value index)
-                    alist->query-string))))
+                    (qs/alist-replace key value index)
+                    qs/alist->query-string))))
 
 (defn param
   "Get the last param value that matches the given key. If 3 args are
@@ -433,15 +436,15 @@ given, set the nth param value that matches the given key."
   ([uri key]
      (-> uri (params key) last))
   ([uri key value]
-     (query uri (->> (alist-replace (query-pairs uri) key value)
+     (query uri (->> (qs/alist-replace (query-pairs uri) key value)
                      (map (fn [[key val]]
                             [(encode-param key) (encode-param val)]))
-                     alist->query-string)))
+                     qs/alist->query-string)))
   ([uri key value index]
-     (query uri (->> (alist-replace (query-pairs uri) key value index)
+     (query uri (->> (qs/alist-replace (query-pairs uri) key value index)
                      (map (fn [[key val]]
                             [(encode-param key) (encode-param val)]))
-                     alist->query-string))))
+                     qs/alist->query-string))))
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."

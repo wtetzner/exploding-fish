@@ -22,7 +22,7 @@
 (ns org.bovinegenius.exploding-fish.parser
   (:require (clojure [string :as str])))
 
-(defn parse-generic
+(defn generic
   "Takes a URI string and parses it into scheme, scheme-specific-part,
 and fragment parts."
   [uri]
@@ -32,7 +32,7 @@ and fragment parts."
       {:scheme scheme :scheme-specific-part ssp :fragment fragment})
     {:scheme nil :scheme-specific-part nil :fragment nil}))
 
-(defn parse-scheme-specific
+(defn scheme-specific
   "Parse the scheme specific part into authority, path, and query
 parts."
   [ssp]
@@ -46,7 +46,7 @@ parts."
       {:authority authority :path path :query query})
     {:authority nil :path nil :query nil}))
 
-(defn parse-authority
+(defn authority
   "Parse the authority part into user-info, hostname, and port parts."
   [authority]
   (if authority
@@ -67,14 +67,14 @@ parts."
      (->> (filter (fn [[key value]] (not (nil? value))) data)
           (into (empty data)))))
 
-(defn parse-uri
+(defn uri
   "Parse a URI string."
   [uri]
-  (let [generic (parse-generic uri)]
-    (if (empty? (clean-map generic))
+  (let [gen (generic uri)]
+    (if (empty? (clean-map gen))
       {:path uri}
-      (let [scheme-specific (parse-scheme-specific (:scheme-specific-part generic))
-            authority (parse-authority (:authority scheme-specific))]
-        (->> (merge generic scheme-specific authority)
+      (let [ss (scheme-specific (:scheme-specific-part gen))
+            auth (authority (:authority ss))]
+        (->> (merge gen ss auth)
              clean-map
              (into {}))))))
