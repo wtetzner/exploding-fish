@@ -36,15 +36,16 @@ and fragment parts."
   "Parse the scheme specific part into authority, path, and query
 parts."
   [ssp]
-  (if ssp
-    (let [[front & query] (str/split ssp #"\?")
-          query (reduce str query)
-          query (if (.contains ssp "?") query nil)
-          auth-path (last (re-find #"^//(.*)$" front))
-          [_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
-          path (if (empty? path) nil path)]
-      {:authority authority :path path :query query})
-    {:authority nil :path nil :query nil}))
+  (or
+   (when ssp
+     (let [[front & query] (str/split ssp #"\?")
+           query (apply str query)
+           query (if (.contains ssp "?") query nil)]
+       (when-let [auth-path (last (re-find #"^//(.*)$" front))]
+         (let [[_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
+               path (if (empty? path) nil path)]
+           {:authority authority :path path :query query}))))
+   {:authority nil :path nil :query nil}))
 
 (defn authority
   "Parse the authority part into user-info, hostname, and port parts."

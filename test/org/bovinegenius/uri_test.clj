@@ -2,6 +2,7 @@
   (:use (org.bovinegenius exploding-fish)
         (org.bovinegenius.exploding-fish query-string)
         (clojure test))
+  (:require (org.bovinegenius.exploding-fish [parser :as parse]))
   (:import (java.net URI URL)))
 
 (deftest uri-test
@@ -57,6 +58,13 @@
             :scheme "http",
             :scheme-specific-part "//www.domain.net:8080/with?query=and",
             :fragment "fragment"}))))
+
+(deftest broken-test
+  (is (= (uri->map (uri "http:/stuff?"))
+         {:scheme "http", :scheme-specific-part "/stuff?"}))
+  (is (= (uri->map (uri "http://stuff?"))
+         {:scheme "http", :authority "stuff", :host "stuff",
+          :scheme-specific-part "//stuff?", :query ""})))
 
 (deftest protocol-fns
   (let [string "http://someone@www.pureawesomeness.org:8088/some/path?x=y&a=b#awesomeness"
