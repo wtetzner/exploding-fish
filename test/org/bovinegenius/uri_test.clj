@@ -59,12 +59,16 @@
             :scheme-specific-part "//www.domain.net:8080/with?query=and",
             :fragment "fragment"}))))
 
-(deftest broken-test
+(deftest partial-test
   (is (= (uri->map (uri "http:/stuff?"))
-         {:scheme "http", :scheme-specific-part "/stuff?"}))
+         {:scheme "http", :scheme-specific-part "/stuff?" :path "/stuff?"}))
   (is (= (uri->map (uri "http://stuff?"))
          {:scheme "http", :authority "stuff", :host "stuff",
-          :scheme-specific-part "//stuff?", :query ""})))
+          :scheme-specific-part "//stuff?", :query ""}))
+  (is (= (uri->map (uri "file:/some/path"))
+         {:scheme "file", :scheme-specific-part "/some/path" :path "/some/path"}))
+  (is (= (uri->map (uri "file:///some/path"))
+         {:scheme "file", :scheme-specific-part "///some/path" :path "/some/path"})))
 
 (deftest protocol-fns
   (let [string "http://someone@www.pureawesomeness.org:8088/some/path?x=y&a=b#awesomeness"

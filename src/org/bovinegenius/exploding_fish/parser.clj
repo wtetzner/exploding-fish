@@ -41,10 +41,11 @@ parts."
      (let [[front & query] (str/split ssp #"\?")
            query (apply str query)
            query (if (.contains ssp "?") query nil)]
-       (when-let [auth-path (last (re-find #"^//(.*)$" front))]
+       (if-let [auth-path (last (re-find #"^//(.*)$" front))]
          (let [[_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
                path (if (empty? path) nil path)]
-           {:authority authority :path path :query query}))))
+           {:authority (if (empty? authority) nil authority) :path path :query query})
+         {:authority nil :path ssp :query nil})))
    {:authority nil :path nil :query nil}))
 
 (defn authority
