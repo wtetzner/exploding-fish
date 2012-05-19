@@ -179,6 +179,10 @@
   (seq [self] (seq data))
 
   clojure.lang.IPersistentMap
+
+  clojure.lang.IFn
+  (invoke [self key]
+    (get self key))
   
   Object
   (toString [self] (build/uri-string data))
