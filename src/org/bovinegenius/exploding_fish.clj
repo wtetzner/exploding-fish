@@ -183,6 +183,8 @@
   clojure.lang.IFn
   (invoke [self key]
     (get self key))
+  (invoke [self key value]
+    (get self key value))
   
   Object
   (toString [self] (build/uri-string data))
