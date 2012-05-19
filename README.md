@@ -39,9 +39,9 @@ For example,
     #<Uri http://www.example.com:8080/>
     user> (def the-uri (uri "http://www.example.com/"))
     #'user/the-uri
-    user> (:scheme-specific-part the-uri)
+    user> (:scheme-relative the-uri)
     "//www.example.com/"
-    user> (:scheme-specific-part (assoc the-uri :port 8080))
+    user> (:scheme-relative (assoc the-uri :port 8080))
     "//www.example.com:8080/"
 
 ### Accessor Functions
@@ -51,7 +51,7 @@ map, the benefit of the accessor functions is that they work on
 different types.
 
 * scheme
-* scheme-specific-part
+* scheme-relative
 * authority
 * user-info
 * host
