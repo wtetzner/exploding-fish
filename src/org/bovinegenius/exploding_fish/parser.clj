@@ -1,36 +1,38 @@
 ;; Copyright (c) 2011,2012 Walter Tetzner
 
-;; Permission is hereby granted, free of charge, to any person obtaining
-;; a copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
+;; Permission is hereby granted, free of charge, to any person
+;; obtaining a copy of this software and associated documentation
+;; files (the "Software"), to deal in the Software without
+;; restriction, including without limitation the rights to use, copy,
+;; modify, merge, publish, distribute, sublicense, and/or sell copies
+;; of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
 
-;; The above copyright notice and this permission notice shall be included
-;; in all copies or substantial portions of the Software.
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
 
 ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 ;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish.parser
   (:require (clojure [string :as str])))
 
 (defn generic
-  "Takes a URI string and parses it into scheme, scheme-specific-part,
+  "Takes a URI string and parses it into scheme, scheme-relative,
 and fragment parts."
+  
   [uri]
   (if uri
     (let [[_ scheme ssp fragment] (re-find #"^(.*?):([^#]+)#?(.*)$" uri)
           fragment (if (.contains uri "#") fragment nil)]
-      {:scheme scheme :scheme-specific-part ssp :fragment fragment})
-    {:scheme nil :scheme-specific-part nil :fragment nil}))
+      {:scheme scheme :scheme-relative ssp :fragment fragment})
+    {:scheme nil :scheme-relative nil :fragment nil}))
 
 (defn scheme-specific
   "Parse the scheme specific part into authority, path, and query
@@ -44,7 +46,8 @@ parts."
        (if-let [auth-path (last (re-find #"^//(.*)$" front))]
          (let [[_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
                path (if (empty? path) nil path)]
-           {:authority (if (empty? authority) nil authority) :path path :query query})
+           {:authority (if (empty? authority) nil authority)
+            :path path :query query})
          {:authority nil :path ssp :query nil})))
    {:authority nil :path nil :query nil}))
 
@@ -75,7 +78,7 @@ parts."
   (let [gen (generic uri)]
     (if (empty? (clean-map gen))
       {:path uri}
-      (let [ss (scheme-specific (:scheme-specific-part gen))
+      (let [ss (scheme-specific (:scheme-relative gen))
             auth (authority (:authority ss))]
         (->> (merge gen ss auth)
              clean-map

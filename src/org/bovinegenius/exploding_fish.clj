@@ -1,23 +1,24 @@
 ;; Copyright (c) 2011,2012 Walter Tetzner
 
-;; Permission is hereby granted, free of charge, to any person obtaining
-;; a copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
+;; Permission is hereby granted, free of charge, to any person
+;; obtaining a copy of this software and associated documentation
+;; files (the "Software"), to deal in the Software without
+;; restriction, including without limitation the rights to use, copy,
+;; modify, merge, publish, distribute, sublicense, and/or sell copies
+;; of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
 
-;; The above copyright notice and this permission notice shall be included
-;; in all copies or substantial portions of the Software.
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
 
 ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 ;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish
   (:require (org.bovinegenius.exploding-fish
@@ -49,8 +50,8 @@
   (scheme
     [self] [self new-scheme]
     "Get or set the scheme component of the URI.")
-  (scheme-specific-part
-    [self] [self new-scheme-specific-part]
+  (scheme-relative
+    [self] [self new-scheme-relative]
     "Get or set the scheme specific part of the URI.")
   (authority
     [self] [self new-authority]
@@ -75,7 +76,7 @@
     "Get or set the fragment of the URI."))
 
 (def ^{:dynamic true, :private true}
-  *uri-keys* #{:scheme :scheme-specific-part :authority
+  *uri-keys* #{:scheme :scheme-relative :authority
                :user-info :host :port :path :query
                :fragment})
 
@@ -85,80 +86,89 @@
   (scheme [self new-scheme] (-> (assoc data :scheme new-scheme)
                                 (parse/clean-map *uri-keys*)
                                 (Uri. metadata)))
-  (scheme-specific-part [self] (:scheme-specific-part data))
-  (scheme-specific-part [self ssp] (let [new-data (assoc data :scheme-specific-part ssp)
-                                         ssp-data (parse/scheme-specific ssp)
-                                         auth-data (parse/authority (:authority ssp-data))]
-                                     (-> (merge new-data ssp-data auth-data)
-                                         (parse/clean-map *uri-keys*)
-                                         (Uri. metadata))))
+  (scheme-relative [self] (:scheme-relative data))
+  (scheme-relative [self ssp]
+    (let [new-data (assoc data :scheme-relative ssp)
+          ssp-data (parse/scheme-specific ssp)
+          auth-data (parse/authority (:authority ssp-data))]
+      (-> (merge new-data ssp-data auth-data)
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (authority [self] (:authority data))
-  (authority [self authority] (let [new-data (assoc data :authority authority)
-                                    auth-data (parse/authority authority)]
-                                (-> (merge new-data auth-data)
-                                    (parse/clean-map *uri-keys*)
-                                    (Uri. metadata))))
+  (authority [self authority]
+    (let [new-data (assoc data :authority authority)
+          auth-data (parse/authority authority)]
+      (-> (merge new-data auth-data)
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (user-info [self] (:user-info data))
-  (user-info [self user-info] (let [new-data (assoc data :user-info user-info)
-                                    authority (build/authority new-data)
-                                    new-data (assoc new-data :authority authority)
-                                    ssp (build/scheme-specific new-data)
-                                    new-data (assoc new-data :scheme-specific-part ssp)]
-                                (-> new-data
-                                    (parse/clean-map *uri-keys*)
-                                    (Uri. metadata))))
+  (user-info [self user-info]
+    (let [new-data (assoc data :user-info user-info)
+          authority (build/authority new-data)
+          new-data (assoc new-data :authority authority)
+          ssp (build/scheme-specific new-data)
+          new-data (assoc new-data :scheme-relative ssp)]
+      (-> new-data
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (host [self] (:host self))
-  (host [self host] (let [new-data (assoc data :host host)
-                          authority (build/authority new-data)
-                          new-data (assoc new-data :authority authority)
-                          ssp (build/scheme-specific new-data)
-                          new-data (assoc new-data :scheme-specific-part ssp)]
-                      (-> new-data
-                          (parse/clean-map *uri-keys*)
-                          (Uri. metadata))))
+  (host [self host]
+    (let [new-data (assoc data :host host)
+          authority (build/authority new-data)
+          new-data (assoc new-data :authority authority)
+          ssp (build/scheme-specific new-data)
+          new-data (assoc new-data :scheme-relative ssp)]
+      (-> new-data
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (port [self] (:port self))
-  (port [self port] (let [new-data (if (and port (>= port 0))
-                                     (assoc data :port port)
-                                     (dissoc data :port))
-                          authority (build/authority new-data)
-                          new-data (assoc new-data :authority authority)
-                          ssp (build/scheme-specific new-data)
-                          new-data (assoc new-data :scheme-specific-part ssp)]
-                      (-> new-data
-                          (parse/clean-map *uri-keys*)
-                          (Uri. metadata))))
+  (port [self port]
+    (let [new-data (if (and port (>= port 0))
+                     (assoc data :port port)
+                     (dissoc data :port))
+          authority (build/authority new-data)
+          new-data (assoc new-data :authority authority)
+          ssp (build/scheme-specific new-data)
+          new-data (assoc new-data :scheme-relative ssp)]
+      (-> new-data
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (path [self] (:path self))
-  (path [self path] (let [new-data (assoc data :path path)
-                          ssp (build/scheme-specific new-data)
-                          new-data (assoc new-data :scheme-specific-part ssp)]
-                      (-> new-data
-                          (parse/clean-map *uri-keys*)
-                          (Uri. metadata))))
+  (path [self path]
+    (let [new-data (assoc data :path path)
+          ssp (build/scheme-specific new-data)
+          new-data (assoc new-data :scheme-relative ssp)]
+      (-> new-data
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (query [self] (:query self))
-  (query [self query] (let [new-data (assoc data :query query)
-                            ssp (build/scheme-specific new-data)
-                            new-data (assoc new-data :scheme-specific-part ssp)]
-                        (-> new-data
-                            (parse/clean-map *uri-keys*)
-                            (Uri. metadata))))
+  (query [self query]
+    (let [new-data (assoc data :query query)
+          ssp (build/scheme-specific new-data)
+          new-data (assoc new-data :scheme-relative ssp)]
+      (-> new-data
+          (parse/clean-map *uri-keys*)
+          (Uri. metadata))))
   (fragment [self] (:fragment self))
-  (fragment [self fragment] (-> (assoc data :fragment fragment)
-                                (parse/clean-map *uri-keys*)
-                                (Uri. metadata)))
+  (fragment [self fragment]
+    (-> (assoc data :fragment fragment)
+        (parse/clean-map *uri-keys*)
+        (Uri. metadata)))
   
   clojure.lang.Associative
   (containsKey [self key] (contains? data key))
-  (assoc [self key value] (condp = key
-                              :scheme (scheme self value)
-                              :scheme-specific-part (scheme-specific-part self value)
-                              :authority (authority self value)
-                              :user-info (user-info self value)
-                              :host (host self value)
-                              :port (port self value)
-                              :path (path self value)
-                              :query (query self value)
-                              :fragment (fragment self value)
-                              (Uri. (assoc data key value) metadata)))
+  (assoc [self key value]
+    (condp = key
+      :scheme (scheme self value)
+      :scheme-relative (scheme-relative self value)
+      :authority (authority self value)
+      :user-info (user-info self value)
+      :host (host self value)
+      :port (port self value)
+      :path (path self value)
+      :query (query self value)
+      :fragment (fragment self value)
+      (Uri. (assoc data key value) metadata)))
   (entryAt [self key] (data key))
 
   clojure.lang.ILookup
@@ -172,12 +182,14 @@
   
   Object
   (toString [self] (build/uri-string data))
-  (equals [self other] (if (and (instance? (class self) other)
-                                (= (into {} other) data))
-                         true
-                         false))
-  (hashCode [self] (int (/ (+ (Integer. (.hashCode data))
-                              (Integer. (.hashCode (str self)))) 2)))
+  (equals [self other]
+    (if (and (instance? (class self) other)
+             (= (into {} other) data))
+      true
+      false))
+  (hashCode [self]
+    (int (/ (+ (Integer. (.hashCode data))
+               (Integer. (.hashCode (str self)))) 2)))
 
   clojure.lang.IPersistentCollection
   (equiv [self other] (.equals self other))
@@ -207,9 +219,11 @@ another Uri object."
   {:scheme (fn ([^URI self] (.getScheme self))
              ([^URI self ^String new-scheme]
                 (-> self uri (scheme new-scheme) str URI.)))
-   :scheme-specific-part (fn ([^URI self] (.getRawSchemeSpecificPart self))
-                           ([^URI self ^String ssp]
-                              (-> self uri (scheme-specific-part ssp) str URI.)))
+   :scheme-relative (fn ([^URI self]
+                           (.getRawSchemeSpecificPart self))
+                      ([^URI self ^String ssp]
+                         (-> self uri
+                             (scheme-relative ssp) str URI.)))
    :authority (fn ([^URI self] (.getRawAuthority self))
                 ([^URI self ^String new-authority]
                    (-> self uri (authority new-authority) str URI.)))
@@ -238,10 +252,11 @@ another Uri object."
   {:scheme (fn ([^String self] (-> self uri scheme))
              ([^String self ^String new-scheme]
                 (-> self uri (scheme new-scheme) str str)))
-   :scheme-specific-part (fn ([^String self]
-                                (-> self uri scheme-specific-part))
+   :scheme-relative (fn ([^String self]
+                                (-> self uri scheme-relative))
                            ([^String self ^String ssp]
-                              (-> self uri (scheme-specific-part ssp) str str)))
+                              (-> self uri
+                                  (scheme-relative ssp) str str)))
    :authority (fn ([^String self] (-> self uri authority))
                 ([^String self ^String new-authority]
                    (-> self uri (authority new-authority) str str)))
@@ -269,10 +284,11 @@ another Uri object."
   {:scheme (fn ([^URL self] (-> self uri scheme))
              ([^URL self ^String new-scheme]
                 (-> self uri (scheme new-scheme) str URL.)))
-   :scheme-specific-part (fn ([^URL self]
-                                (-> self uri scheme-specific-part))
+   :scheme-relative (fn ([^URL self]
+                                (-> self uri scheme-relative))
                            ([^URL self ^String ssp]
-                              (-> self uri (scheme-specific-part ssp) str URL.)))
+                              (-> self uri
+                                  (scheme-relative ssp) str URL.)))
    :authority (fn ([^URL self] (-> self uri authority))
                 ([^URL self ^String new-authority]
                    (-> self uri (authority new-authority) str URL.)))
@@ -299,7 +315,7 @@ another Uri object."
   "Convert a java.net.URI into a hash-map."
   [^URI uri]
   (->> {:scheme (scheme uri)
-        :scheme-specific-part (scheme-specific-part uri)
+        :scheme-relative (scheme-relative uri)
         :authority (authority uri)
         :user-info (user-info uri)
         :host (host uri)
@@ -313,8 +329,8 @@ another Uri object."
 (defn ^URI map->uri
   "Convert a hash-map into a java.net.URI."
   [uri]
-  (cond (-> (:scheme-specific-part uri) empty? not)
-        (URI. (:scheme uri) (:scheme-specific-part uri)
+  (cond (-> (:scheme-relative uri) empty? not)
+        (URI. (:scheme uri) (:scheme-relative uri)
               (:fragment uri))
         
         (:user-info uri)
@@ -389,8 +405,8 @@ and values of the pairs are URL decoded."
           vec)))
 
 (defn params-raw
-  "Returns an alist of the query values whose key matches the given key. If no
-key is given, all values are returned."
+  "Returns an alist of the query values whose key matches the given
+key. If no key is given, all values are returned."
   ([uri key]
      (->> uri raw-pairs
           (filter (fn [[param-key value]]
@@ -401,8 +417,8 @@ key is given, all values are returned."
      (->> uri raw-pairs (map second) vec)))
 
 (defn params
-  "Returns an alist of the query values whose key matches the given key. If no
-key is given, all values are returned."
+  "Returns an alist of the query values whose key matches the given
+key. If no key is given, all values are returned."
   ([uri key]
      (->> uri query-pairs
           (filter (fn [[param-key value]]

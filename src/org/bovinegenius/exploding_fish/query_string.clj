@@ -1,23 +1,24 @@
 ;; Copyright (c) 2011,2012 Walter Tetzner
 
-;; Permission is hereby granted, free of charge, to any person obtaining
-;; a copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
+;; Permission is hereby granted, free of charge, to any person
+;; obtaining a copy of this software and associated documentation
+;; files (the "Software"), to deal in the Software without
+;; restriction, including without limitation the rights to use, copy,
+;; modify, merge, publish, distribute, sublicense, and/or sell copies
+;; of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
 
-;; The above copyright notice and this permission notice shall be included
-;; in all copies or substantial portions of the Software.
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
 
 ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 ;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish.query-string
   (:require (clojure [string :as str]))
@@ -34,7 +35,8 @@
   "Convert a query string list into an alist."
   [list]
   (vec (map (fn [text]
-              (let [[key value] (or (next (re-find #"^([^=]*)=(.*)$" text))
+              (let [[key value] (or (next
+                                     (re-find #"^([^=]*)=(.*)$" text))
                                     [text])]
                 [key value]))
             list)))
@@ -85,19 +87,24 @@ unmodified."
                      (drop-while pair-matcher)
                      rest
                      (filter pair-matcher))]
-       (with-meta (vec (concat front [(with-meta [key value] (meta item))] back))
+       (with-meta (vec (concat front [(with-meta [key value]
+                                        (meta item))]
+                               back))
          (meta alist))))
   ([alist key value index]
      (let [pair-matcher (fn [[param-key value]]
                           (not= param-key key))
            items (->> alist
                       (map-indexed (fn [index pair]
-                                     (vary-meta pair assoc :index index)))
+                                     (vary-meta pair assoc
+                                                :index index)))
                       (remove pair-matcher)
                       vec)
            item (if (>= index (count items)) nil (items index))
            index (or (-> item meta :index) (count alist))
            front (take index alist)
            back (drop (inc index) alist)]
-       (with-meta (vec (concat front (with-meta [[key value]] (meta item)) back))
+       (with-meta (vec (concat front (with-meta [[key value]]
+                                       (meta item))
+                               back))
          (meta alist)))))

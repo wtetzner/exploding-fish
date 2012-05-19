@@ -14,12 +14,12 @@
                                :path "/",
                                :authority "www.fred.net",
                                :scheme "http",
-                               :scheme-specific-part "//www.fred.net/"})))
+                               :scheme-relative "//www.fred.net/"})))
            {:host "www.fred.net",
             :path "/",
             :authority "www.fred.net",
             :scheme "http",
-            :scheme-specific-part "//www.fred.net/"})))
+            :scheme-relative "//www.fred.net/"})))
   (let [uri-string "http://www.domain.net/with?query=and#fragment"]
     (is (= (into {} (seq (uri uri-string)))
            (into {} (seq (uri (URI. uri-string))))
@@ -29,14 +29,14 @@
                                :path "/with",
                                :authority "www.domain.net",
                                :scheme "http",
-                               :scheme-specific-part "//www.domain.net/with?query=and",
+                               :scheme-relative "//www.domain.net/with?query=and",
                                :fragment "fragment"})))           
            {:host "www.domain.net",
             :query "query=and",
             :path "/with",
             :authority "www.domain.net",
             :scheme "http",
-            :scheme-specific-part "//www.domain.net/with?query=and",
+            :scheme-relative "//www.domain.net/with?query=and",
             :fragment "fragment"})))
   (let [uri-string "http://www.domain.net:8080/with?query=and#fragment"]
     (is (= (into {} (seq (uri uri-string)))
@@ -48,7 +48,7 @@
                                :path "/with",
                                :authority "www.domain.net:8080",
                                :scheme "http",
-                               :scheme-specific-part "//www.domain.net:8080/with?query=and",
+                               :scheme-relative "//www.domain.net:8080/with?query=and",
                                :fragment "fragment"})))
            {:port 8080,
             :host "www.domain.net",
@@ -56,19 +56,19 @@
             :path "/with",
             :authority "www.domain.net:8080",
             :scheme "http",
-            :scheme-specific-part "//www.domain.net:8080/with?query=and",
+            :scheme-relative "//www.domain.net:8080/with?query=and",
             :fragment "fragment"}))))
 
 (deftest partial-test
   (is (= (uri->map (uri "http:/stuff?"))
-         {:scheme "http", :scheme-specific-part "/stuff?" :path "/stuff?"}))
+         {:scheme "http", :scheme-relative "/stuff?" :path "/stuff?"}))
   (is (= (uri->map (uri "http://stuff?"))
          {:scheme "http", :authority "stuff", :host "stuff",
-          :scheme-specific-part "//stuff?", :query ""}))
+          :scheme-relative "//stuff?", :query ""}))
   (is (= (uri->map (uri "file:/some/path"))
-         {:scheme "file", :scheme-specific-part "/some/path" :path "/some/path"}))
+         {:scheme "file", :scheme-relative "/some/path" :path "/some/path"}))
   (is (= (uri->map (uri "file:///some/path"))
-         {:scheme "file", :scheme-specific-part "///some/path" :path "/some/path"})))
+         {:scheme "file", :scheme-relative "///some/path" :path "/some/path"})))
 
 (deftest protocol-fns
   (let [string "http://someone@www.pureawesomeness.org:8088/some/path?x=y&a=b#awesomeness"
@@ -80,10 +80,10 @@
            (scheme java-url)
            (scheme uri-obj)
            "http"))
-    (is (= (scheme-specific-part string)
-           (scheme-specific-part java-uri)
-           (scheme-specific-part java-url)
-           (scheme-specific-part uri-obj)
+    (is (= (scheme-relative string)
+           (scheme-relative java-uri)
+           (scheme-relative java-url)
+           (scheme-relative uri-obj)
            "//someone@www.pureawesomeness.org:8088/some/path?x=y&a=b"))
     (is (= (authority string)
            (authority java-uri)
@@ -128,7 +128,7 @@
           :authority "www.test.com:8080",
           :host "www.test.com",
           :port 8080,
-          :scheme-specific-part "//www.test.com:8080/some/stuff.html",
+          :scheme-relative "//www.test.com:8080/some/stuff.html",
           :fragment "frag"})))
 
 (deftest query-list-test
