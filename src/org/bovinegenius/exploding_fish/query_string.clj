@@ -21,8 +21,8 @@
 ;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish.query-string
-  (:require (clojure [string :as str]))
-  (:import (java.net URLDecoder URLEncoder)))
+  (:require [clojure.string :as str])
+  (:import [java.net URLDecoder URLEncoder]))
 
 (defn query-string->list
   "Convert a query string into a list by separating on &'s."

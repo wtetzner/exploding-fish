@@ -21,7 +21,7 @@
 ;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish.parser
-  (:require (clojure [string :as str])))
+  (:require [clojure.string :as str]))
 
 (defn generic
   "Takes a URI string and parses it into scheme, scheme-relative,
@@ -30,7 +30,7 @@ and fragment parts."
   [uri]
   (if uri
     (let [[_ scheme ssp fragment] (re-find #"^(.*?):([^#]+)#?(.*)$" uri)
-          fragment (if (.contains uri "#") fragment nil)]
+          fragment (when (.contains uri "#") fragment)]
       {:scheme scheme :scheme-relative ssp :fragment fragment})
     {:scheme nil :scheme-relative nil :fragment nil}))
 
@@ -42,11 +42,11 @@ parts."
    (when ssp
      (let [[front & query] (str/split ssp #"\?")
            query (apply str query)
-           query (if (.contains ssp "?") query nil)]
+           query (when (.contains ssp "?") query)]
        (if-let [auth-path (last (re-find #"^//(.*)$" front))]
          (let [[_ authority path] (re-find #"^(.*?)(?=\./|\.\./|/|$)(.*)" auth-path)
-               path (if (empty? path) nil path)]
-           {:authority (if (empty? authority) nil authority)
+               path (when-not (empty? path) path)]
+           {:authority (when-not (empty? authority) authority)
             :path path :query query})
          {:authority nil :path ssp :query nil})))
    {:authority nil :path nil :query nil}))
@@ -56,7 +56,7 @@ parts."
   [authority]
   (if authority
     (let [[_ user-info host port] (re-find #"^([^@]+(?=@))?@?([^:]+):?(.*)$" authority)
-          port (if (empty? port) nil (Integer/parseInt port))]
+          port (when-not (empty? port) (Integer/parseInt port))]
       {:user-info user-info :host host :port port})
     {:user-info nil :host nil :port nil}))
 
@@ -64,7 +64,7 @@ parts."
   "Remove keys that have a nil value, and that are in the given set."
   ([data keys]
      (reduce (fn [data key]
-               (if (not (nil? (data key)))
+               (if-not (nil? (data key))
                  data
                  (dissoc data key)))
              data keys))

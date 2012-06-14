@@ -21,7 +21,7 @@
 ;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish.path
-  (:require (clojure [string :as str])))
+  (:require [clojure.string :as str]))
 
 (defn split-path
   "Split a path into its parts."
