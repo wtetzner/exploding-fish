@@ -21,11 +21,11 @@
 ;; DEALINGS IN THE SOFTWARE.
 
 (ns org.bovinegenius.exploding-fish
-  (:require (org.bovinegenius.exploding-fish
+  (:require [org.bovinegenius.exploding-fish
              [path :as path]
              [query-string :as qs]
              [parser :as parse]
-             [constructor :as build]))
+             [constructor :as build]])
   (:import (java.net URI URL URLDecoder URLEncoder)))
 
 (def ^:dynamic *default-encoding*

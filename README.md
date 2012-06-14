@@ -16,11 +16,11 @@ to your project.clj.
 
 You can use it in a source file like this:
 
-    (:use (org.bovinegenius exploding-fish))
+    (:require [org.bovinegenius [exploding-fish :refer :all]])
 
 or
 
-    (:require (org.bovinegenius [exploding-fish :as uri]))
+    (:require [org.bovinegenius [exploding-fish :as uri]])
 
 The functions in Exploding Fish that are used to access URI values
 work on objects of type Uri, java.net.URI, java.net.URL, and

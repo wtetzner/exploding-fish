@@ -26,25 +26,24 @@
   "Takes a map with :user-info, :host, and :port keys, and returns a
 string."
   [{:keys [user-info host port]}]
-  (let [user-info (if user-info (format "%s@" user-info) nil)
-        port (if port (format ":%s" port) nil)]
+  (let [user-info (when user-info (format "%s@" user-info))
+        port (when port (format ":%s" port))]
     (str user-info host port)))
 
 (defn ^String scheme-specific
   "Takes a map with :authority, :path, and :query keys, and returns a
 string."
   [{:keys [authority path query]}]
-  (let [query (if query (format "?%s" query) nil)
-        authority (if (empty? authority)
-                    nil
+  (let [query (when query (format "?%s" query))
+        authority (when-not (empty? authority)
                     (format "//%s" authority))]
     (str authority path query)))
 
 (defn ^String uri-string
   "Takes a map representing a URI, and returns a string."
   [{:keys [scheme scheme-relative fragment] :as uri-data}]
-  (let [scheme (if scheme (format "%s:" scheme) nil)
-        fragment (if fragment (format "#%s" fragment) nil)
+  (let [scheme (when scheme (format "%s:" scheme))
+        fragment (when fragment (format "#%s" fragment))
         auth (or (:authority uri-data) (authority uri-data))
         ssp (or scheme-relative
                 (scheme-specific
