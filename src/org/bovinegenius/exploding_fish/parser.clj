@@ -25,11 +25,10 @@
 
 (defn generic
   "Takes a URI string and parses it into scheme, scheme-relative,
-and fragment parts."
-  
+and fragment parts."  
   [uri]
   (if uri
-    (let [[_ scheme ssp fragment] (re-find #"^(.*?):([^#]+)#?(.*)$" uri)
+    (let [[_ scheme ssp fragment] (re-find #"^([a-zA-Z][a-zA-Z\d+.-]*):([^#]+)#?(.*)$" uri)
           fragment (if (.contains uri "#") fragment nil)]
       {:scheme scheme :scheme-relative ssp :fragment fragment})
     {:scheme nil :scheme-relative nil :fragment nil}))
@@ -71,6 +70,11 @@ parts."
   ([data]
      (->> (filter (fn [[key value]] (not (nil? value))) data)
           (into (empty data)))))
+
+(defn relative?
+  "Check if the URI string is relative."
+  [uri]
+  (not (re-find #"^[a-zA-Z][a-zA-Z\d+.-]*" uri)))
 
 (defn uri
   "Parse a URI string."

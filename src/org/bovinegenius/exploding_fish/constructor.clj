@@ -33,7 +33,7 @@ string."
 (defn ^String scheme-specific
   "Takes a map with :authority, :path, and :query keys, and returns a
 string."
-  [{:keys [authority path query]}]
+  [{:keys [authority path query] :as m}]
   (let [query (if query (format "?%s" query) nil)
         authority (if (empty? authority)
                     nil
@@ -48,5 +48,5 @@ string."
         auth (or (:authority uri-data) (authority uri-data))
         ssp (or scheme-relative
                 (scheme-specific
-                 (assoc uri-data :authority authority)))]
+                 (assoc uri-data :authority auth)))]
     (str scheme ssp fragment)))

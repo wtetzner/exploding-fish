@@ -60,6 +60,8 @@
             :fragment "fragment"}))))
 
 (deftest partial-test
+  (is (= (uri->map (uri "/some/path"))
+         {:path "/some/path"}))
   (is (= (uri->map (uri "http:/stuff?"))
          {:scheme "http", :scheme-relative "/stuff?" :path "/stuff?"}))
   (is (= (uri->map (uri "http://stuff?"))
@@ -213,16 +215,20 @@
            (normalize-path uri)))))
 
 (deftest resolve-path-test
-  (let [uri "http://www.example.com/some/path/../awesome/./thing/../path/here?x=y&a=b#a-fragment"]
+  (let [the-uri "http://www.example.com/some/path/../awesome/./thing/../path/here?x=y&a=b#a-fragment"]
     (is (= "http://www.example.com/some/awesome/path/new/path/stuff?x=y&a=b#a-fragment"
-           (resolve-path uri "new/path/stuff")))
+           (resolve-path the-uri "new/path/stuff")))
     (is (= "http://www.example.com/some/awesome/path/new/path/stuff?x=y&a=b#a-fragment"
-           (normalize-path (resolve-path uri "new/path/stuff"))))
+           (normalize-path (resolve-path the-uri "new/path/stuff"))))
     (is (= "http://www.example.com/new/path/stuff?x=y&a=b#a-fragment"
-           (resolve-path uri "/new/path/stuff")))
+           (resolve-path the-uri "/new/path/stuff")))
     (is (= "http://www.example.com/some/awesome/path/here/new/path/stuff?x=y&a=b#a-fragment"
            (resolve-path "http://www.example.com/some/awesome/path/here/?x=y&a=b#a-fragment"
-                         "new/path/stuff")))))
+                         "new/path/stuff")))
+    (is (= (str (resolve-path (uri "http://www.example.com/asdf/x") "y/asdf"))
+           "http://www.example.com/asdf/y/asdf"))
+    (is (= (str (resolve-path (uri "http://www.example.com/asdf/x") (uri "y/asdf")))
+           "http://www.example.com/asdf/y/asdf"))))
 
 (deftest absolute?-test
   (is (absolute? "http://www.test.net/new/path?x=y&a=w"))
