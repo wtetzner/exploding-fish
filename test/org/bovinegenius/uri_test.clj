@@ -61,9 +61,9 @@
 
 (deftest partial-test
   (is (= (uri->map (uri "/some/path"))
-         {:path "/some/path"}))
+         {:path "/some/path" :scheme-relative "/some/path"}))
   (is (= (uri->map (uri "http:/stuff?"))
-         {:scheme "http", :scheme-relative "/stuff?" :path "/stuff?"}))
+         {:scheme "http", :scheme-relative "/stuff?" :path "/stuff" :query ""}))
   (is (= (uri->map (uri "http://stuff?"))
          {:scheme "http", :authority "stuff", :host "stuff",
           :scheme-relative "//stuff?", :query ""}))
@@ -159,6 +159,8 @@
            (param url "a" 7)))
     (is (= "http://www.test.net/some/path?x=y&a=w&d+x=m%3Df&a=x&m=2&a=7"
            (param url "a" 7 2)))
+    (is (= (param "/some/path/stuff?thing=value" "thing" "new-value")
+           "/some/path/stuff?thing=new-value"))
     (is (= "http://www.test.net/some/path?x=y&a=w&d+x=7&a=x&m=2"
            (param url "d x" 7)))
     (is (= "http://www.test.net/some/path?x=y&a=w&d+x=m%3Df&a=7&m=2"

@@ -23,12 +23,18 @@
 (ns org.bovinegenius.exploding-fish.parser
   (:require (clojure [string :as str])))
 
+(defn- parse-relative
+  [uri]
+  (let [[f ssp fragment] (re-find #"^([^#]+)(?:#(.*))?" uri)]
+    [f nil ssp fragment]))
+
 (defn generic
   "Takes a URI string and parses it into scheme, scheme-relative,
 and fragment parts."  
   [uri]
   (if uri
-    (let [[_ scheme ssp fragment] (re-find #"^([a-zA-Z][a-zA-Z\d+.-]*):([^#]+)#?(.*)$" uri)
+    (let [[_ scheme ssp fragment] (or (re-find #"^([a-zA-Z][a-zA-Z\d+.-]*):([^#]+)#?(.*)$" uri)
+                                      (parse-relative uri))
           fragment (if (.contains uri "#") fragment nil)]
       {:scheme scheme :scheme-relative ssp :fragment fragment})
     {:scheme nil :scheme-relative nil :fragment nil}))
@@ -47,7 +53,7 @@ parts."
                path (if (empty? path) nil path)]
            {:authority (if (empty? authority) nil authority)
             :path path :query query})
-         {:authority nil :path ssp :query nil})))
+         {:authority nil :path front :query query})))
    {:authority nil :path nil :query nil}))
 
 (defn authority
