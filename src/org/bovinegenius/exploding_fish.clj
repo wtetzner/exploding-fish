@@ -489,13 +489,14 @@ given, set the nth param value that matches the given key."
   (->> (path uri) path/normalize (path uri)))
 
 (defn- as-path
-  "Ensure path")
+  "Ensure path"
+  [p] 
+  (path (uri p)))
 
 (defn resolve-path
   "Resolve the given path against the given uri."
   [the-uri the-path]
-  (letfn [(as-path [p] (path (uri p)))]
-    (path the-uri (-> (path the-uri) (path/resolve-path (as-path the-path))))))
+    (path the-uri (-> (path the-uri) (path/resolve-path (as-path the-path)))))
 
 (defn absolute-path?
   "Returns true if the given uri path is absolute."
