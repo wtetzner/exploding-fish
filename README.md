@@ -29,7 +29,7 @@ java.lang.String.
 ### Creating a Uri
 
 Exploding Fish comes with a Uri class, which behaves like a map,
-except that it ensures that it's values are always consistent.
+except that it ensures that its values are always consistent.
 
 For example,
 
