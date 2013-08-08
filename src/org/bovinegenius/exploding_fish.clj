@@ -507,3 +507,25 @@ given, set the nth param value that matches the given key."
   "Returns true if the given URI is absolute."
   [uri]
   (boolean (authority uri)))
+
+(defn resolve-uri
+  "Resolves a target uri from a source uri.
+Essentially this is an implementation of:
+-> RFC 2396
+-> RFC 1808
+This implementation and the associated tests based on
+this document: http://www.ics.uci.edu/~fielding/url/test2.html"
+  [src-uri target-uri]
+  (let [target-uri-query       (query target-uri)
+        target-uri-fragment    (fragment target-uri)]
+
+    ;; need to handle this case separately:
+    ;; resolve-uri "http://a/b/c" "//c"
+    ;; since path is nil, the resolve fails
+    (if (re-find #"^//" target-uri)
+      (scheme target-uri
+              (scheme src-uri))
+      (-> src-uri
+         (resolve-path target-uri)
+         (query target-uri-query)
+         (fragment target-uri-fragment)))))
