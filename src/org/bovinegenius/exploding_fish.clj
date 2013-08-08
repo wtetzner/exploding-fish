@@ -522,7 +522,7 @@ this document: http://www.ics.uci.edu/~fielding/url/test2.html"
     ;; need to handle this case separately:
     ;; resolve-uri "http://a/b/c" "//c"
     ;; since path is nil, the resolve fails
-    (if (re-find #"^//" target-uri)
+    (if (re-find #"^//" (str target-uri))
       (scheme target-uri
               (scheme src-uri))
       (-> src-uri

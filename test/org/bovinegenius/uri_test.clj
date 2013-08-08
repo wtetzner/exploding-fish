@@ -248,8 +248,12 @@
            "http://a/g"))
     (is (= (resolve-uri the-base-uri "//g")
            "http://g"))
+    (is (= (resolve-uri the-base-uri (URI. "//g"))
+           (URI. "http://g")))
     (is (= (resolve-uri the-base-uri "g?y")
            "http://a/b/c/g?y"))
+    (is (= (resolve-uri (URI. the-base-uri) "g?y")
+           (URI. "http://a/b/c/g?y")))
     (is (let [resolved-uri (resolve-uri the-base-uri "g?y/./x")]
           (or (= resolved-uri "http://a/b/c/g?y/./x")
              (= resolved-uri "http://a/b/c/g?y/x"))))
