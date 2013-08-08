@@ -511,8 +511,8 @@ given, set the nth param value that matches the given key."
 (defn resolve-uri
   "Resolves a target uri from a source uri.
 Essentially this is an implementation of:
-[1] RFC 2396
-[2] RFC 1808
+-> RFC 2396
+-> RFC 1808
 This implementation and the associated tests based on
 this document: http://www.ics.uci.edu/~fielding/url/test2.html"
   [src-uri target-uri]
