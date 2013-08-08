@@ -235,3 +235,42 @@
 (deftest absolute?-test
   (is (absolute? "http://www.test.net/new/path?x=y&a=w"))
   (is (not (absolute? "/new/path?x=y&a=w"))))
+
+(deftest resolve-uri-test
+  (let [the-base-uri "http://a/b/c/d;p?q=1/2"]
+    (is (= (resolve-uri the-base-uri "g")
+           "http://a/b/c/g"))
+    (is (= (resolve-uri the-base-uri "./g")
+           "http://a/b/c/g"))
+    (is (= (resolve-uri the-base-uri "g/")
+           "http://a/b/c/g/"))
+    (is (= (resolve-uri the-base-uri "/g")
+           "http://a/g"))
+    (is (= (resolve-uri the-base-uri "//g")
+           "http://g"))
+    (is (= (resolve-uri the-base-uri "g?y")
+           "http://a/b/c/g?y"))
+    (is (let [resolved-uri (resolve-uri the-base-uri "g?y/./x")]
+          (or (= resolved-uri "http://a/b/c/g?y/./x")
+             (= resolved-uri "http://a/b/c/g?y/x"))))
+    (is (let [resolved-uri (resolve-uri the-base-uri "g?y/../x")]
+          (or (= resolved-uri "http://a/b/c/g?y/../x")
+             (= resolved-uri "http://a/b/c/x"))))
+    (is (= (resolve-uri the-base-uri "g#s")
+           "http://a/b/c/g#s"))
+    (is (let [resolved-uri (resolve-uri the-base-uri "g#s/./x")]
+          (or (= resolved-uri "http://a/b/c/g#s/./x")
+             (= resolved-uri "http://a/b/c/g#s/x"))))
+    (is (let [resolved-uri (resolve-uri the-base-uri "g#s/../x")]
+          (or (= resolved-uri "http://a/b/c/g#s/../x")
+             (= resolved-uri "http://a/b/c/x"))))
+    (is (= (resolve-uri the-base-uri "./")
+           "http://a/b/c/"))
+    (is (= (resolve-uri the-base-uri "../")
+           "http://a/b/"))
+    (is (= (resolve-uri the-base-uri "../g")
+           "http://a/b/g"))
+    (is (= (resolve-uri the-base-uri "../../")
+           "http://a/"))
+    (is (= (resolve-uri the-base-uri "../../g")
+           "http://a/g"))))
