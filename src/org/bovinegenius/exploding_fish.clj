@@ -222,34 +222,34 @@ another Uri object."
 
 (extend java.net.URI
   UniformResourceIdentifier
-  {:scheme (fn ([^URI self] (.getScheme self))
+  {:scheme (fn ([^URI self] (-> self uri scheme))
              ([^URI self ^String new-scheme]
                 (-> self uri (scheme new-scheme) str URI.)))
    :scheme-relative (fn ([^URI self]
-                           (.getRawSchemeSpecificPart self))
+                           (-> self uri scheme-relative))
                       ([^URI self ^String ssp]
                          (-> self uri
                              (scheme-relative ssp) str URI.)))
-   :authority (fn ([^URI self] (.getRawAuthority self))
+   :authority (fn ([^URI self] (-> self uri authority))
                 ([^URI self ^String new-authority]
                    (-> self uri (authority new-authority) str URI.)))
-   :user-info (fn ([^URI self] (.getRawUserInfo self))
+   :user-info (fn ([^URI self] (-> self uri user-info))
                 ([^URI self ^String new-user-info]
                    (-> self uri (user-info new-user-info) str URI.)))
-   :host (fn ([^URI self] (.getHost self))
+   :host (fn ([^URI self] (-> self uri host))
            ([^URI self ^String new-host]
               (-> self uri (host new-host) str URI.)))
-   :port (fn ([^URI self] (let [port (.getPort self)]
+   :port (fn ([^URI self] (let [port (-> self uri port)]
                             (if (= port -1) nil port)))
            ([^URI self ^Integer new-port]
               (-> self uri (port new-port) str URI.)))
-   :path (fn ([^URI self] (.getRawPath self))
+   :path (fn ([^URI self] (-> self uri path))
            ([^URI self ^String new-path]
               (-> self uri (path new-path) str URI.)))
-   :query (fn ([^URI self] (.getRawQuery self))
+   :query (fn ([^URI self] (-> self uri query))
             ([^URI self ^String new-query]
                (-> self uri (query new-query) str URI.)))
-   :fragment (fn ([^URI self] (.getRawFragment self))
+   :fragment (fn ([^URI self] (-> self uri fragment))
                ([^URI self ^String new-fragment]
                   (-> self uri (fragment new-fragment) str URI.)))})
 
