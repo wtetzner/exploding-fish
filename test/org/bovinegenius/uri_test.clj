@@ -238,6 +238,9 @@
 
 (deftest resolve-uri-test
   (let [the-base-uri "http://a/b/c/d;p?q=1/2"]
+    (is (let [diff-host-uri "http://e/f"]
+         (= (resolve-uri the-base-uri diff-host-uri)
+            diff-host-uri)))
     (is (= (resolve-uri the-base-uri "g")
            "http://a/b/c/g"))
     (is (= (resolve-uri the-base-uri "./g")
