@@ -522,10 +522,19 @@ this document: http://www.ics.uci.edu/~fielding/url/test2.html"
     ;; need to handle this case separately:
     ;; resolve-uri "http://a/b/c" "//c"
     ;; since path is nil, the resolve fails
-    (if (re-find #"^//" (str target-uri))
-      (scheme target-uri
-              (scheme src-uri))
-      (-> src-uri
-         (resolve-path target-uri)
-         (query target-uri-query)
-         (fragment target-uri-fragment)))))
+    (cond
+     (re-find #"^//" (str target-uri))
+     (scheme target-uri
+             (scheme src-uri))
+
+     (absolute? target-uri)   ; this is the second condition we match
+     target-uri               ; against since (absolute? //a/b) => #t
+                              ; and we want (resolve-uri "http:/a/b"
+                              ; "http://c/d") to resolve to the target
+                              ; URI itself
+     
+     :else
+     (-> src-uri
+        (resolve-path target-uri)
+        (query target-uri-query)
+        (fragment target-uri-fragment)))))
