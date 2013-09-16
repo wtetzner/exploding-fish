@@ -154,7 +154,7 @@
     (-> (assoc data :fragment fragment)
         (parse/clean-map *uri-keys*)
         (Uri. metadata)))
-  
+
   clojure.lang.Associative
   (containsKey [self key] (contains? data key))
   (assoc [self key value]
@@ -185,7 +185,7 @@
     (get self key))
   (invoke [self key value]
     (get self key value))
-  
+
   Object
   (toString [self] (build/uri-string data))
   (equals [self other]
@@ -199,10 +199,10 @@
 
   clojure.lang.IPersistentCollection
   (equiv [self other] (.equals self other))
-  
+
   clojure.lang.IObj
   (withMeta [self mdata] (Uri. data mdata))
-  
+
   clojure.lang.IMeta
   (meta [self] metadata))
 
@@ -338,17 +338,17 @@ another Uri object."
   (cond (-> (:scheme-relative uri) empty? not)
         (URI. (:scheme uri) (:scheme-relative uri)
               (:fragment uri))
-        
+
         (:user-info uri)
         (URI. (:scheme uri) (:user-info uri)
               (:host uri) (or (:port uri) -1)
               (:path uri) (:query uri)
               (:fragment uri))
-        
+
         (:host uri)
         (URI. (:scheme uri) (:host uri) (:path uri)
               (:fragment uri))
-        
+
         :else (URI. (:scheme uri) (:authority uri)
                     (:path uri) (:query uri)
                     (:fragment uri))))
@@ -470,8 +470,13 @@ given, set the nth param value that matches the given key."
 
 (defn query-map
   "Returns a map of the query string parameters for the given URI."
-  [uri]
-  (->> uri query-pairs (into {})))
+  ([uri]
+     (->> uri query-pairs (into {})))
+  ([uri param-map]
+     (let [keywords-to-strings (fn [[k v]] [(name k) v])
+           query-params (->> (map keywords-to-strings param-map) (into {}))
+           add-param (fn [url [key val]] (param url key val))]
+       (reduce add-param uri query-params))))
 
 (defn raw-keys
   "Returns a list of the query string keys of the given URI."
@@ -490,7 +495,7 @@ given, set the nth param value that matches the given key."
 
 (defn- as-path
   "Ensure path"
-  [p] 
+  [p]
   (path (uri p)))
 
 (defn resolve-path
@@ -532,7 +537,7 @@ this document: http://www.ics.uci.edu/~fielding/url/test2.html"
                               ; and we want (resolve-uri "http:/a/b"
                               ; "http://c/d") to resolve to the target
                               ; URI itself
-     
+
      :else
      (-> src-uri
         (resolve-path target-uri)
