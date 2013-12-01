@@ -1,4 +1,4 @@
-Build Status: [![Build Status](https://travis-ci.org/wtetzner/exploding-fish.png?branch=master)](https://travis-ci.org/wtetzner/exploding-fish)
+[![Build Status](https://travis-ci.org/wtetzner/exploding-fish.png?branch=master)](https://travis-ci.org/wtetzner/exploding-fish)
 
 Exploding Fish
 --------------
