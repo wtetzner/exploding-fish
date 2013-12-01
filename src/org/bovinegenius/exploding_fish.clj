@@ -501,7 +501,9 @@ given, set the nth param value that matches the given key."
 (defn resolve-path
   "Resolve the given path against the given uri."
   [the-uri the-path]
-    (path the-uri (-> (path the-uri) (path/resolve-path (as-path the-path)))))
+  (let [current-path (or (path the-uri) "/")]
+    (path the-uri
+          (-> current-path (path/resolve-path (as-path the-path))))))
 
 (defn absolute-path?
   "Returns true if the given uri path is absolute."

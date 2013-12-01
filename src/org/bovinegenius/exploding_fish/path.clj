@@ -41,18 +41,20 @@
 (defn ^String normalize
   "Normalize the given path."
   [path]
-  (->> (str/replace path #"/+" "/")
-       split-path
-       (remove (partial = "."))
-       (reduce (fn [pieces element]
-                 (cond (and (= element "..")
-                            (or (empty? pieces)
-                                (= (last pieces) "..")))
-                       (conj pieces element)
+  (if (nil? path)
+    path
+    (->> (str/replace path #"/+" "/")
+         split-path
+         (remove (partial = "."))
+         (reduce (fn [pieces element]
+                   (cond (and (= element "..")
+                              (or (empty? pieces)
+                                  (= (last pieces) "..")))
+                         (conj pieces element)
 
-                       (= element "..") (pop pieces)
-                       :else (conj pieces element))) [])
-       (str/join "/")))
+                         (= element "..") (pop pieces)
+                         :else (conj pieces element))) [])
+         (str/join "/"))))
 
 (defn absolute?
   "Returns true if the given path is absolute, false otherwise."

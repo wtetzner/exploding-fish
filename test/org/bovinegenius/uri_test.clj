@@ -214,7 +214,9 @@
 (deftest normalize-path-test
   (let [uri "http://www.example.com/some/path/../awesome/./thing/../path/here?x=y&a=b#a-fragment"]
     (is (= "http://www.example.com/some/awesome/path/here?x=y&a=b#a-fragment"
-           (normalize-path uri)))))
+           (normalize-path uri)))
+    (is (= (normalize-path "http://foo.org")
+           "http://foo.org"))))
 
 (deftest resolve-path-test
   (let [the-uri "http://www.example.com/some/path/../awesome/./thing/../path/here?x=y&a=b#a-fragment"]
@@ -230,7 +232,11 @@
     (is (= (str (resolve-path (uri "http://www.example.com/asdf/x") "y/asdf"))
            "http://www.example.com/asdf/y/asdf"))
     (is (= (str (resolve-path (uri "http://www.example.com/asdf/x") (uri "y/asdf")))
-           "http://www.example.com/asdf/y/asdf"))))
+           "http://www.example.com/asdf/y/asdf"))
+    (is (= (resolve-path "http://foo.org" "data.html")
+           "http://foo.org/data.html"))
+    (is (= (resolve-path "http://foo.org" "/data.html")
+           "http://foo.org/data.html"))))
 
 (deftest absolute?-test
   (is (absolute? "http://www.test.net/new/path?x=y&a=w"))
