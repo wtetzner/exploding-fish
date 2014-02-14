@@ -166,6 +166,21 @@ There are some path functions to make working with URIs easier.
     user> (absolute? (uri "/new/path?x=y&a=w"))
     false
 
+#### Resolving URIs
+
+`resolve-uri` allows you to resolve a partial URI against a full URI.
+
+    user=> (resolve-uri "http://a/b/c/d;p?q=1/2" "http://e/f")
+    "http://e/f"
+    user=> (resolve-uri "http://a/b/c/d;p?q=1/2" "g")
+    "http://a/b/c/g"
+    user=> (resolve-uri "http://a/b/c/d;p?q=1/2" "./g")
+    "http://a/b/c/g"
+    user=> (resolve-uri "http://a/b/c/d;p?q=1/2" "//g")
+    "http://g"
+    user=> (resolve-uri "http://a/b/c/d;p?q=1/2" "g?y/../x")
+    "http://a/b/c/g?y/../x"
+
 License
 -------
 
