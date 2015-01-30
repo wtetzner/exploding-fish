@@ -169,7 +169,7 @@
       :query (query self value)
       :fragment (fragment self value)
       (Uri. (assoc data key value) metadata)))
-  (entryAt [self key] (data key))
+  (entryAt [_ key] (find data key))
 
   clojure.lang.ILookup
   (valAt [self key] (get data key))
@@ -179,6 +179,21 @@
   (seq [self] (seq data))
 
   clojure.lang.IPersistentMap
+  (without [self key]
+    (condp = key
+      :scheme (scheme self nil)
+      :scheme-relative (scheme-relative self nil)
+      :authority (authority self nil)
+      :user-info (user-info self nil)
+      :host (host self nil)
+      :port (port self nil)
+      :path (path self nil)
+      :query (query self nil)
+      :fragment (fragment self nil)
+      (Uri. (dissoc data key) metadata)))
+
+  Iterable
+  (iterator [_] (.iterator data))
 
   clojure.lang.IFn
   (invoke [self key]
@@ -197,7 +212,28 @@
     (int (/ (+ (Integer. (.hashCode data))
                (Integer. (.hashCode (str self)))) 2)))
 
+  java.io.Serializable
+
+  java.util.Map
+  (size [self] (count self))
+  (isEmpty [self] (= 0 (count self)))
+  (containsValue [self value] (boolean (some #{value} (vals self))))
+  (get [self key] (.valAt self key))
+  (put [_ _ _] (throw (UnsupportedOperationException.)))
+  (remove [_ _] (throw (UnsupportedOperationException.)))
+  (putAll [_ _] (throw (UnsupportedOperationException.)))
+  (clear [_] (throw (UnsupportedOperationException.)))
+  (keySet [self] (set (keys self)))
+  (values [self] (vals self))
+  (entrySet [self] (set self))
+
   clojure.lang.IPersistentCollection
+  (count [_] (count data))
+  (empty [_] (Uri. {} metadata))
+  (cons [self o]
+    (cond (instance? java.util.Map$Entry o) (assoc self (key o) (val o))
+          (vector? o) (assoc self (nth o 0) (nth o 1))
+          :else (reduce conj self o)))
   (equiv [self other] (.equals self other))
 
   clojure.lang.IObj
