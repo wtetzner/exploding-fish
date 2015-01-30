@@ -212,6 +212,21 @@
     (int (/ (+ (Integer. (.hashCode data))
                (Integer. (.hashCode (str self)))) 2)))
 
+  java.io.Serializable
+
+  java.util.Map
+  (size [self] (count self))
+  (isEmpty [self] (= 0 (count self)))
+  (containsValue [self value] (boolean (some #{value} (vals self))))
+  (get [self key] (.valAt self key))
+  (put [_ _ _] (throw (UnsupportedOperationException.)))
+  (remove [_ _] (throw (UnsupportedOperationException.)))
+  (putAll [_ _] (throw (UnsupportedOperationException.)))
+  (clear [_] (throw (UnsupportedOperationException.)))
+  (keySet [self] (set (keys self)))
+  (values [self] (vals self))
+  (entrySet [self] (set self))
+
   clojure.lang.IPersistentCollection
   (count [_] (count data))
   (empty [_] (Uri. {} metadata))
