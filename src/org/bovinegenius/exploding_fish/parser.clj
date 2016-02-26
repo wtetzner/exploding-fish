@@ -31,7 +31,7 @@
 (defn generic
   "Takes a URI string and parses it into scheme, scheme-relative,
 and fragment parts."  
-  [uri]
+  [^String uri]
   (if uri
     (let [[_ scheme ssp fragment] (or (re-find #"^([a-zA-Z][a-zA-Z\d+.-]*):([^#]+)#?(.*)$" uri)
                                       (parse-relative uri))
@@ -42,7 +42,7 @@ and fragment parts."
 (defn scheme-specific
   "Parse the scheme specific part into authority, path, and query
 parts."
-  [ssp]
+  [^String ssp]
   (or
    (when ssp
      (let [[front & query] (str/split ssp #"\?")
