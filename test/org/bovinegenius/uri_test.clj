@@ -30,6 +30,14 @@
             :authority "www.fred.net",
             :scheme "http",
             :scheme-relative "//www.fred.net/"})))
+  (let [uri-string "http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html"]
+    (is (= (into {} (uri uri-string))
+           {:scheme "http"
+            :scheme-relative "//[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html"
+            :authority  "[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80"
+            :host "[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]"
+            :port 80
+            :path "/index.html"})))
   (let [uri-string "http://www.domain.net/with?query=and#fragment"]
     (is (= (into {} (uri uri-string))
            (into {} (uri (URI. uri-string)))

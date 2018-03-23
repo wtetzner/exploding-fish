@@ -30,7 +30,7 @@
 
 (defn generic
   "Takes a URI string and parses it into scheme, scheme-relative,
-and fragment parts."  
+and fragment parts."
   [^String uri]
   (if uri
     (let [[_ scheme ssp fragment] (or (re-find #"^([a-zA-Z][a-zA-Z\d+.-]*):([^#]+)#?(.*)$" uri)
@@ -60,7 +60,7 @@ parts."
   "Parse the authority part into user-info, hostname, and port parts."
   [authority]
   (if authority
-    (let [[_ user-info host port] (re-find #"^([^@]+(?=@))?@?([^:]+):?(.*)$" authority)
+    (let [[_ user-info host port] (re-find #"^([^@]+(?=@))?@?([^:]+|\[[0-9a-fA-F:]*\]):?(\d*)$" authority)
           port (if (empty? port) nil (Integer/parseInt port))]
       {:user-info user-info :host host :port port})
     {:user-info nil :host nil :port nil}))
