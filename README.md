@@ -12,7 +12,7 @@ Usage
 
 To use with Leiningen, add
 
-    :dependencies [[org.bovinegenius/exploding-fish "0.3.5"]]
+    :dependencies [[org.bovinegenius/exploding-fish "0.3.6"]]
 
 to your project.clj.
 
