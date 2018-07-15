@@ -20,7 +20,9 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ;; DEALINGS IN THE SOFTWARE.
 
-(ns org.bovinegenius.exploding-fish.constructor)
+(ns org.bovinegenius.exploding-fish.constructor
+  (:require (org.bovinegenius.exploding-fish
+             [parser :as parse])))
 
 (defn ^String authority
   "Takes a map with :user-info, :host, and :port keys, and returns a
@@ -50,3 +52,16 @@ string."
                 (scheme-specific
                  (assoc uri-data :authority auth)))]
     (str scheme ssp fragment)))
+
+(defn prepare-map
+  "Takes a map representing a URI, and populates missing data."
+  [{:keys [scheme scheme-relative fragment] :as uri-data}]
+  (let [auth (or (:authority uri-data) (authority uri-data))
+        auth (if (empty? auth) nil auth)
+        ssp (or scheme-relative
+                (scheme-specific
+                 (assoc uri-data :authority auth)))
+        ssp (if (empty? ssp) nil ssp)]
+    (assoc uri-data
+           :authority auth
+           :scheme-relative ssp)))

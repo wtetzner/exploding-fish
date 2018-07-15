@@ -84,6 +84,7 @@
   UniformResourceIdentifier
   (scheme [self] (:scheme data))
   (scheme [self new-scheme] (-> (assoc data :scheme new-scheme)
+                                (build/prepare-map)
                                 (parse/clean-map *uri-keys*)
                                 (Uri. metadata)))
   (scheme-relative [self] (:scheme-relative data))
@@ -92,6 +93,7 @@
           ssp-data (parse/scheme-specific ssp)
           auth-data (parse/authority (:authority ssp-data))]
       (-> (merge new-data ssp-data auth-data)
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (authority [self] (:authority data))
@@ -99,6 +101,7 @@
     (let [new-data (assoc data :authority authority)
           auth-data (parse/authority authority)]
       (-> (merge new-data auth-data)
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (user-info [self] (:user-info data))
@@ -109,6 +112,7 @@
           ssp (build/scheme-specific new-data)
           new-data (assoc new-data :scheme-relative ssp)]
       (-> new-data
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (host [self] (:host self))
@@ -119,6 +123,7 @@
           ssp (build/scheme-specific new-data)
           new-data (assoc new-data :scheme-relative ssp)]
       (-> new-data
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (port [self] (:port self))
@@ -131,6 +136,7 @@
           ssp (build/scheme-specific new-data)
           new-data (assoc new-data :scheme-relative ssp)]
       (-> new-data
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (path [self] (:path self))
@@ -139,6 +145,7 @@
           ssp (build/scheme-specific new-data)
           new-data (assoc new-data :scheme-relative ssp)]
       (-> new-data
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (query [self] (:query self))
@@ -147,11 +154,13 @@
           ssp (build/scheme-specific new-data)
           new-data (assoc new-data :scheme-relative ssp)]
       (-> new-data
+          (build/prepare-map)
           (parse/clean-map *uri-keys*)
           (Uri. metadata))))
   (fragment [self] (:fragment self))
   (fragment [self fragment]
     (-> (assoc data :fragment fragment)
+        (build/prepare-map)
         (parse/clean-map *uri-keys*)
         (Uri. metadata)))
 
@@ -168,7 +177,7 @@
       :path (path self value)
       :query (query self value)
       :fragment (fragment self value)
-      (Uri. (assoc data key value) metadata)))
+      (Uri. (parse/clean-map (build/prepare-map (assoc data key value)) *uri-keys*) metadata)))
   (entryAt [_ key] (find data key))
 
   clojure.lang.ILookup
@@ -190,7 +199,7 @@
       :path (path self nil)
       :query (query self nil)
       :fragment (fragment self nil)
-      (Uri. (dissoc data key) metadata)))
+      (Uri. (parse/clean-map (build/prepare-map (dissoc data key)) *uri-keys*) metadata)))
 
   Iterable
   (iterator [_] (.iterator data))
@@ -252,9 +261,9 @@ another Uri object."
   [uri]
   (condp instance? uri
     Uri uri
-    clojure.lang.IPersistentMap (Uri. uri (meta uri))
-    java.lang.String (Uri. (parse/uri uri) nil)
-    (Uri. (-> uri str str parse/uri) nil)))
+    clojure.lang.IPersistentMap (Uri. (parse/clean-map (build/prepare-map uri) *uri-keys*) (meta uri))
+    java.lang.String (Uri. (parse/clean-map (build/prepare-map (parse/uri uri)) *uri-keys*) nil)
+    (Uri. (-> uri str str parse/uri build/prepare-map (parse/clean-map *uri-keys*)) nil)))
 
 (extend java.net.URI
   UniformResourceIdentifier

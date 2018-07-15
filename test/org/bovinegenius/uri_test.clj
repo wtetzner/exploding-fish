@@ -5,6 +5,12 @@
   (:require (org.bovinegenius.exploding-fish [parser :as parse]))
   (:import (java.net URI URL)))
 
+(deftest ensure-authority-test
+  (let [uritest (uri {:scheme "http" :host "localhost" :port 3001 :path "/tags" :query "name=comp&from=0"})
+        my-uri (uri {:scheme "http" :host "localhost" :port 3000})]
+    (is (= (str (param uritest "from" 10)) "http://localhost:3001/tags?name=comp&from=10"))
+    (is (= (str (path my-uri "/foo")) "http://localhost:3000/foo"))))
+
 (deftest uri-test
   (let [uri-string "http://www.fred.net/"]
     (is (= [:host "www.fred.net"] (find (uri uri-string) :host)))
