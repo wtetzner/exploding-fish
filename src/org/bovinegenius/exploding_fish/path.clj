@@ -29,7 +29,8 @@
   (->> (range (count path))
        (map (fn [index]
               (String.
-               (into-array Integer/TYPE [(.codePointAt path index)])
+               ^ints (into-array Integer/TYPE
+                                 [(.codePointAt ^String path index)])
                0 1)))
        (reduce (fn [parts char]
                  (if (= "/" char)
@@ -59,7 +60,7 @@
 (defn absolute?
   "Returns true if the given path is absolute, false otherwise."
   [path]
-  (.startsWith path "/"))
+  (.startsWith ^String path "/"))
 
 (defn ^String resolve-path
   "Resolve one path against a base path."

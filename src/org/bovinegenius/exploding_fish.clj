@@ -202,7 +202,7 @@
       (Uri. (parse/clean-map (build/prepare-map (dissoc data key)) *uri-keys*) metadata)))
 
   Iterable
-  (iterator [_] (.iterator data))
+  (iterator [_] (.iterator ^Iterable data))
 
   clojure.lang.IFn
   (invoke [self key]
@@ -252,8 +252,8 @@
   (meta [self] metadata))
 
 (defmethod print-method Uri [obj writer]
-  (.write writer (format "#<Uri %s>"
-                         (str obj))))
+  (.write ^java.io.Writer writer (format "#<Uri %s>"
+                                         (str obj))))
 
 (defn uri
   "Builds a Uri object. Takes a map of URI keys, a URI string, or
